@@ -185,6 +185,7 @@ These have been discussed but not yet built:
 4. **Stage checklist** (optional hybrid) — predefined pipeline checklist visible on card (HR → Technical → System Design → Offer).
 5. **Deadline / next action field** — date field per process for "next interview" or "offer deadline", shown on card.
 6. **Filter / search** — filter board by status, mode, or free-text search across company/role/notes.
+7. **Dark and bright mode toggle** — switch UI behavior by using the toggle so USer can choose the preferred mode
 
 ---
 
