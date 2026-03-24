@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <style>
 :root {
+  /* Dark theme (default) */
   --bg:     #0f0f11;
   --bg2:    #161619;
   --bg3:    #1d1d22;
@@ -31,6 +32,34 @@
   --c-interview: #3ecf8e;
   --c-offer:     #22d3ee;
   --c-rejected:  #f87171;
+}
+
+/* Light theme */
+body.light-theme {
+  --bg:     #ffffff;
+  --bg2:    #f8f8fa;
+  --bg3:    #f0f0f3;
+  --bg4:    #e8e8ec;
+  --bg5:    #e0e0e5;
+  --border: rgba(0,0,0,0.08);
+  --border2:rgba(0,0,0,0.12);
+  --border3:rgba(0,0,0,0.18);
+  --text:   #1a1a1c;
+  --text2:  #6b6b75;
+  --text3:  #a0a0ab;
+  --accent: #6c5ce7;
+  --accent2:#5f4fd8;
+  --green:  #00b894;
+  --amber:  #f59e0b;
+  --red:    #e74c3c;
+  --cyan:   #00b8d4;
+  --blue:   #3498db;
+
+  --c-applied:   #6c7aff;
+  --c-screening: #f59e0b;
+  --c-interview: #00b894;
+  --c-offer:     #00b8d4;
+  --c-rejected:  #e74c3c;
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -585,6 +614,9 @@ textarea.mfi{resize:vertical;min-height:68px;line-height:1.5;}
   <div class="header-right">
     <div class="stat-chip" id="chip-total">Total: <span>0</span></div>
     <div class="stat-chip" id="chip-active">Active: <span>0</span></div>
+    <button class="btn-icon-header" id="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+      <span id="theme-icon">☀️</span>
+    </button>
     <button class="btn-icon-header green" onclick="exportCSV()">↓ CSV</button>
     <button class="btn-icon-header amber" id="btn-export-json" onclick="exportJSON()">↓ JSON</button>
     <button class="btn-add-header" onclick="openModal()">+ Add</button>
@@ -710,8 +742,10 @@ textarea.mfi{resize:vertical;min-height:68px;line-height:1.5;}
 // ═══════════════════════════════════════════════════════════════
 const FS_SUPPORTED = ('showOpenFilePicker' in window);
 const LS_KEY = 'pipeline_v2';
+const THEME_KEY = 'pipeline_theme';
 let fileHandle = null;
 let storageMode = 'none'; // 'fs' | 'local'
+let currentTheme = 'dark'; // 'dark' | 'light'
 
 async function initFS_new() {
   try {
@@ -868,6 +902,9 @@ function showApp() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  // Initialize theme
+  initTheme();
+
   const note = document.getElementById('welcome-note');
   if (!FS_SUPPORTED) {
     note.textContent = 'Your browser does not support the File System API. Data will be saved in browser storage.';
@@ -1304,6 +1341,32 @@ function download(content, filename, type) {
   const a    = Object.assign(document.createElement('a'), { href:url, download:filename });
   document.body.appendChild(a); a.click();
   document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════════════
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  currentTheme = saved || 'dark';
+  applyTheme(currentTheme);
+}
+
+function toggleTheme() {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(currentTheme);
+  localStorage.setItem(THEME_KEY, currentTheme);
+  toast(`Switched to ${currentTheme} theme`);
+}
+
+function applyTheme(theme) {
+  if (theme === 'light') {
+    document.body.classList.add('light-theme');
+    document.getElementById('theme-icon').textContent = '🌙';
+  } else {
+    document.body.classList.remove('light-theme');
+    document.getElementById('theme-icon').textContent = '☀️';
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
