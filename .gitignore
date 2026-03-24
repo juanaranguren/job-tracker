@@ -12,5 +12,9 @@ Thumbs.db
 # Data files (user-specific)
 pipeline.json
 
+# SSH keys
+jobtracker
+jobtracker.pub
+
 # Logs
 *.log
