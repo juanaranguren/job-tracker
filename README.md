@@ -195,3 +195,35 @@ These have been discussed but not yet built:
 - **Seed data** — the `seedData()` function populates sample processes. Called only when no data exists.
 - **File System API** requires a user gesture (button click) to activate — cannot be triggered programmatically on page load. This is a browser security requirement and cannot be worked around.
 - **localStorage key** is `pipeline_v2`. Changing the data model shape requires a migration or key bump.
+
+---
+
+## Chrome users: File access permissions
+
+When using Chrome/Edge with the File System Access API, you may see a permission dialog from macOS or Windows when the app saves changes:
+
+![Chrome file access permission dialog](images/chrome-access-docs.jpg)
+
+> "Google Chrome.app" would like to access files in your Documents folder.
+
+### Why this happens
+
+- When you create or open a `pipeline.json` file in a protected folder (Documents, Desktop, Downloads)
+- And make changes (add/edit/delete a card, update notes, etc.)
+- Chrome needs to write to that file, so the OS asks for folder access permission
+
+### What to do
+
+**Click "OK" or "Allow"** — this is safe and necessary for auto-save to work. The app only writes to the specific file you selected.
+
+### To avoid permission prompts
+
+Save your `pipeline.json` file in a non-protected location:
+- Create a dedicated folder like `~/pipeline-data/`
+- Or use any folder outside Documents/Desktop/Downloads
+
+### Alternative: Browser storage
+
+If you prefer to avoid these prompts entirely, use the browser storage fallback:
+- Firefox and Safari use localStorage by default (no file permissions needed)
+- In Chrome, the app automatically falls back to localStorage if file access fails
