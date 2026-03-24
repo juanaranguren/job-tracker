@@ -46,6 +46,7 @@ The app reads and writes a single `pipeline.json` file. Structure:
 {
   "version": 2,
   "lastSaved": "2026-03-24T14:32:00Z",
+  "theme": "dark",
   "processes": [
     {
       "id": "lf3k2a9m",
@@ -73,6 +74,15 @@ The app reads and writes a single `pipeline.json` file. Structure:
 ```
 
 ### Field reference
+
+**Top-level fields**
+
+| Field | Type | Values |
+|---|---|---|
+| `version` | number | Data format version (currently 2) |
+| `lastSaved` | string | ISO timestamp of last save |
+| `theme` | string | `dark` \| `light` — UI theme preference |
+| `processes` | array | list of job process objects |
 
 **Process fields**
 
@@ -175,7 +185,12 @@ Theme is dark-only. Fonts: `DM Sans` (UI), `DM Mono` (metadata, chips, code-like
 
 ---
 
-## Planned features / next steps
+## Features
+
+### Implemented
+- ✅ **Dark and light theme toggle** — Switch between dark and light UI modes with a header button. Theme preference is saved to the JSON file and persists across devices.
+
+### Planned features / next steps
 
 These have been discussed but not yet built:
 
@@ -185,7 +200,6 @@ These have been discussed but not yet built:
 4. **Stage checklist** (optional hybrid) — predefined pipeline checklist visible on card (HR → Technical → System Design → Offer).
 5. **Deadline / next action field** — date field per process for "next interview" or "offer deadline", shown on card.
 6. **Filter / search** — filter board by status, mode, or free-text search across company/role/notes.
-7. **Dark and bright mode toggle** — switch UI behavior by using the toggle so USer can choose the preferred mode
 
 ---
 
