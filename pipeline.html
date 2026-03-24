@@ -720,6 +720,7 @@ async function initFS_new() {
       types: [{ description: 'JSON file', accept: { 'application/json': ['.json'] } }]
     });
     storageMode = 'fs';
+    console.log('File handle created:', fileHandle.name);
     return true;
   } catch(e) {
     console.error('Error creating file:', e);
@@ -735,8 +736,25 @@ async function initFS_open() {
     storageMode = 'fs';
     const file = await fileHandle.getFile();
     const text = await file.text();
+
+    // Handle empty file
+    if (!text || text.trim() === '') {
+      console.warn('File is empty, initializing with seed data');
+      seedData();
+      await persistData();
+      return true;
+    }
+
     const parsed = JSON.parse(text);
     processes = Array.isArray(parsed) ? parsed : (parsed.processes || []);
+
+    // If no processes found, seed some data
+    if (!processes || processes.length === 0) {
+      console.warn('No processes found, initializing with seed data');
+      seedData();
+      await persistData();
+    }
+
     return true;
   } catch(e) {
     console.error('Error opening file:', e);
@@ -864,7 +882,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const ok = await initFS_new();
     if (ok) {
       seedData();
+      console.log('Seeded data, processes count:', processes.length);
       await persistData();
+      console.log('Data persisted');
       showApp();
     } else {
       toast('Could not create file.');
