@@ -571,6 +571,51 @@ textarea.mfi{resize:vertical;min-height:68px;line-height:1.5;}
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+/* ─── CONFIRM DIALOG ─── */
+.confirm-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:500;opacity:0;pointer-events:none;
+  transition:opacity .2s;
+}
+.confirm-overlay.show{opacity:1;pointer-events:all;}
+.confirm-dialog{
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:12px;padding:20px 24px;
+  width:380px;max-width:90vw;
+  transform:translateY(10px) scale(.97);
+  transition:transform .2s;
+}
+.confirm-overlay.show .confirm-dialog{transform:translateY(0) scale(1);}
+.confirm-title{
+  font-size:15px;font-weight:500;
+  color:var(--text);margin-bottom:10px;
+}
+.confirm-message{
+  font-size:13px;color:var(--text2);
+  line-height:1.6;margin-bottom:18px;
+}
+.confirm-actions{
+  display:flex;gap:8px;justify-content:flex-end;
+}
+.btn-confirm-cancel{
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  color:var(--text2);background:var(--bg3);
+  border:1px solid var(--border);border-radius:7px;
+  padding:7px 16px;cursor:pointer;transition:all .15s;
+}
+.btn-confirm-cancel:hover{color:var(--text);border-color:var(--border2);}
+.btn-confirm-ok{
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  color:#fff;background:var(--red);
+  border:none;border-radius:7px;
+  padding:7px 20px;cursor:pointer;transition:background .15s;
+}
+.btn-confirm-ok:hover{background:#e63939;}
+
 /* ─── SCROLLBARS ─── */
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -735,6 +780,18 @@ textarea.mfi{resize:vertical;min-height:68px;line-height:1.5;}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Confirmation dialog -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-dialog">
+    <div class="confirm-title" id="confirm-title">Confirm</div>
+    <div class="confirm-message" id="confirm-message"></div>
+    <div class="confirm-actions">
+      <button class="btn-confirm-cancel" id="btn-confirm-cancel">Cancel</button>
+      <button class="btn-confirm-ok" id="btn-confirm-ok">OK</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════
@@ -1292,7 +1349,12 @@ async function saveProcess() {
 
 async function deleteProcess(id) {
   const p = processes.find(x => x.id === id);
-  if (!p || !confirm(`Remove ${p.company}?`)) return;
+  if (!p) return;
+  const confirmed = await confirmDialog(
+    `Remove ${p.company}? This action cannot be undone.`,
+    'Remove Process'
+  );
+  if (!confirmed) return;
   if (activeDrawerId === id) closeDrawer();
   processes = processes.filter(x => x.id !== id);
   await persistData();
@@ -1397,8 +1459,40 @@ function toast(msg) {
   toastTimer = setTimeout(()=>el.classList.remove('show'), 2200);
 }
 
+// Confirmation dialog
+let confirmResolve = null;
+function confirmDialog(message, title = 'Confirm') {
+  return new Promise((resolve) => {
+    confirmResolve = resolve;
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-message').textContent = message;
+    document.getElementById('confirm-overlay').classList.add('show');
+  });
+}
+
+document.getElementById('btn-confirm-ok').onclick = () => {
+  document.getElementById('confirm-overlay').classList.remove('show');
+  if (confirmResolve) confirmResolve(true);
+  confirmResolve = null;
+};
+
+document.getElementById('btn-confirm-cancel').onclick = () => {
+  document.getElementById('confirm-overlay').classList.remove('show');
+  if (confirmResolve) confirmResolve(false);
+  confirmResolve = null;
+};
+
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeDrawer(); }
+  if (e.key === 'Escape') {
+    closeModal();
+    closeDrawer();
+    // Close confirm dialog on Escape
+    if (document.getElementById('confirm-overlay').classList.contains('show')) {
+      document.getElementById('confirm-overlay').classList.remove('show');
+      if (confirmResolve) confirmResolve(false);
+      confirmResolve = null;
+    }
+  }
   if ((e.metaKey||e.ctrlKey) && e.key==='n') { e.preventDefault(); openModal(); }
   if ((e.metaKey||e.ctrlKey) && e.key==='Enter') {
     if (document.getElementById('modal-overlay').classList.contains('open')) saveProcess();
