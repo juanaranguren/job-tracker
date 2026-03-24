@@ -720,9 +720,11 @@ async function initFS_new() {
       types: [{ description: 'JSON file', accept: { 'application/json': ['.json'] } }]
     });
     storageMode = 'fs';
-    await persistData();
     return true;
-  } catch(e) { return false; }
+  } catch(e) {
+    console.error('Error creating file:', e);
+    return false;
+  }
 }
 
 async function initFS_open() {
@@ -736,7 +738,10 @@ async function initFS_open() {
     const parsed = JSON.parse(text);
     processes = Array.isArray(parsed) ? parsed : (parsed.processes || []);
     return true;
-  } catch(e) { return false; }
+  } catch(e) {
+    console.error('Error opening file:', e);
+    return false;
+  }
 }
 
 async function persistData() {
@@ -752,7 +757,10 @@ async function persistData() {
       await writable.close();
       updateStorageIndicator();
       return;
-    } catch(e) { /* fallthrough */ }
+    } catch(e) {
+      console.error('Error persisting to file:', e);
+      // fallthrough to localStorage
+    }
   }
   // localStorage fallback
   localStorage.setItem(LS_KEY, JSON.stringify(payload));
@@ -854,7 +862,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btn-new-file').onclick = async () => {
     const ok = await initFS_new();
-    if (ok) { seedData(); await persistData(); showApp(); }
+    if (ok) {
+      seedData();
+      await persistData();
+      showApp();
+    } else {
+      toast('Could not create file.');
+    }
   };
   document.getElementById('btn-open-file').onclick = async () => {
     const ok = await initFS_open();
