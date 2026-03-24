@@ -782,6 +782,12 @@ async function initFS_open() {
     const parsed = JSON.parse(text);
     processes = Array.isArray(parsed) ? parsed : (parsed.processes || []);
 
+    // Load theme from file
+    if (parsed.theme) {
+      currentTheme = parsed.theme;
+      applyTheme(currentTheme);
+    }
+
     // If no processes found, seed some data
     if (!processes || processes.length === 0) {
       console.warn('No processes found, initializing with seed data');
@@ -800,6 +806,7 @@ async function persistData() {
   const payload = {
     version: 2,
     lastSaved: new Date().toISOString(),
+    theme: currentTheme,
     processes
   };
   if (storageMode === 'fs' && fileHandle) {
@@ -939,6 +946,11 @@ window.addEventListener('DOMContentLoaded', () => {
       try {
         const p = JSON.parse(raw);
         processes = Array.isArray(p) ? p : (p.processes || []);
+        // Load theme from localStorage data
+        if (p.theme) {
+          currentTheme = p.theme;
+          applyTheme(currentTheme);
+        }
       } catch { processes = []; }
     }
     if (!processes.length) seedData();
@@ -1347,15 +1359,16 @@ function download(content, filename, type) {
 // THEME
 // ═══════════════════════════════════════════════════════════════
 function initTheme() {
-  const saved = localStorage.getItem(THEME_KEY);
-  currentTheme = saved || 'dark';
+  // Theme is loaded from JSON file in initFS_open or btn-use-local
+  // Default to dark theme on welcome screen
+  currentTheme = 'dark';
   applyTheme(currentTheme);
 }
 
-function toggleTheme() {
+async function toggleTheme() {
   currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
   applyTheme(currentTheme);
-  localStorage.setItem(THEME_KEY, currentTheme);
+  await persistData();
   toast(`Switched to ${currentTheme} theme`);
 }
 
