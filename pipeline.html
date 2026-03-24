@@ -715,7 +715,7 @@ let storageMode = 'none'; // 'fs' | 'local'
 
 async function initFS_new() {
   try {
-    [fileHandle] = await window.showSaveFilePicker({
+    fileHandle = await window.showSaveFilePicker({
       suggestedName: 'pipeline.json',
       types: [{ description: 'JSON file', accept: { 'application/json': ['.json'] } }]
     });
