@@ -20,7 +20,7 @@ A single-file (`pipeline.html`) local-first web app for tracking job recruiting 
 
 4. **Keep backward compatibility with `pipeline.json`.** If you change the data model, ensure existing files can still be loaded. Add fields with defaults; never remove or rename fields silently.
 
-5. **Dark theme only.** The design uses a fixed dark palette via CSS custom properties. Do not add a light mode unless asked.
+5. **Theme support.** The app supports both dark and light themes via CSS custom properties. Theme preference is stored in localStorage and persists across sessions.
 
 ---
 
