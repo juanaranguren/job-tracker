@@ -20,7 +20,7 @@ A single-file (`pipeline.html`) local-first web app for tracking job recruiting 
 
 4. **Keep backward compatibility with `pipeline.json`.** If you change the data model, ensure existing files can still be loaded. Add fields with defaults; never remove or rename fields silently.
 
-5. **Theme support.** The app supports both dark and light themes via CSS custom properties. Theme preference is stored in localStorage and persists across sessions.
+5. **Theme support.** The app supports both dark and light themes via CSS custom properties. Theme preference is stored in the `pipeline.json` file and persists across sessions and devices.
 
 ---
 
@@ -39,7 +39,7 @@ When adding a new function, place it in the correct section of the script (Stora
 
 ## Data model
 
-See `README.md` for the full schema. Key points:
+See `TECHNICAL.md` for the full schema reference. Key points:
 
 - `processes` is the single global array — all reads/writes go through it
 - After every mutation, call `await persistData()` to save

@@ -1,244 +1,169 @@
 # Pipeline — Job Opportunity Tracker
 
-A local-first, zero-dependency single-file web app for tracking multiple recruiting processes in parallel. Built for IT professionals managing several job opportunities at once.
+A simple, local-first web app for tracking multiple job applications in one place. No installation required, no cloud storage, no subscription. Just open the HTML file and start organizing your job search.
 
-## Philosophy
-
-- **Single HTML file** — no install, no build step, no npm. Open in browser and use.
-- **Local-first** — data lives in a JSON file the user picks on their machine, not in any cloud or server.
-- **Zero dependencies** — vanilla HTML + CSS + JS only. One external resource: Google Fonts (cosmetic, non-breaking if offline).
-- **Cross-browser** — File System Access API on Chrome/Edge (auto-save), localStorage fallback on Firefox/Safari.
+![Pipeline Screenshot](images/chrome-access-docs.jpg)
 
 ---
 
-## Stack
+## What is Pipeline?
 
-| Layer | Technology |
-|---|---|
-| Structure | HTML5 |
-| Styling | CSS3 with custom properties (no framework) |
-| Logic | Vanilla JavaScript ES2020 (async/await, no bundler) |
-| Storage (primary) | File System Access API → writes to user-picked `pipeline.json` |
-| Storage (fallback) | `localStorage` (Firefox / Safari) |
-| Fonts | Google Fonts — DM Sans + DM Mono |
-| Build tooling | None |
+Pipeline helps IT professionals manage multiple recruiting processes simultaneously. Instead of scattered spreadsheets or losing track of which company you're at what stage with, Pipeline gives you a visual kanban board to track every opportunity from application to offer.
+
+**Key benefits:**
+- Your data never leaves your computer
+- Works offline
+- No account creation or login
+- Single HTML file — no installation needed
+- Free and open source
 
 ---
 
-## Project structure
+## Quick Start
 
-```
-pipeline-project/
-├── pipeline.html        ← entire app (single file)
-├── README.md            ← this file
-└── CLAUDE.md            ← instructions for Claude Code
+### 1. Download the app
+
+Download `pipeline.html` from this repository or clone it:
+
+```bash
+git clone https://github.com/yourusername/job-tracker.git
+cd job-tracker
 ```
 
-All source lives in `pipeline.html`. There is no src/, dist/, or build/.
+### 2. Open in your browser
+
+Double-click `pipeline.html` or open it in Chrome, Edge, Firefox, or Safari.
+
+### 3. Create your data file
+
+On first launch, click **"Create new pipeline file"** and choose where to save your `pipeline.json` file. The app will create sample data so you can explore the interface.
+
+That's it! You're ready to track your job applications.
 
 ---
 
-## Data model
+## How to Use
 
-The app reads and writes a single `pipeline.json` file. Structure:
+### Adding a new opportunity
 
-```json
-{
-  "version": 2,
-  "lastSaved": "2026-03-24T14:32:00Z",
-  "theme": "dark",
-  "processes": [
-    {
-      "id": "lf3k2a9m",
-      "company": "Stripe",
-      "role": "Staff Engineer",
-      "salary": "$180k–$220k",
-      "mode": "remote",
-      "status": "interview",
-      "contact": "james@stripe.com",
-      "notes": "System design round next week.",
-      "date": 1742550000000,
-      "interviews": [
-        {
-          "id": "ir001",
-          "type": "HR screen",
-          "date": "2026-03-03",
-          "interviewer": "Sarah K.",
-          "outcome": "pass",
-          "note": "Great culture fit conversation."
-        }
-      ]
-    }
-  ]
-}
-```
+Click the **+ New** button in any column (Applied, Screening, Interview, Offer, Rejected) to add a job opportunity. Fill in:
 
-### Field reference
+- **Company name** (required)
+- **Role** (required)
+- **Salary range** (e.g. "$140k–$170k")
+- **Work mode** (remote, hybrid, onsite)
+- **Contact** (recruiter name or email)
+- **Notes** (any additional context)
 
-**Top-level fields**
+### Moving cards
 
-| Field | Type | Values |
-|---|---|---|
-| `version` | number | Data format version (currently 2) |
-| `lastSaved` | string | ISO timestamp of last save |
-| `theme` | string | `dark` \| `light` — UI theme preference |
-| `processes` | array | list of job process objects |
+Drag and drop cards between columns as your application progresses. Your changes save automatically.
 
-**Process fields**
+### Tracking interview rounds
 
-| Field | Type | Values |
-|---|---|---|
-| `id` | string | uid (base36 timestamp + random) |
-| `company` | string | free text |
-| `role` | string | free text |
-| `salary` | string | free text (e.g. "$140k–$170k") |
-| `mode` | string | `remote` \| `hybrid` \| `onsite` \| `""` |
-| `status` | string | `applied` \| `screening` \| `interview` \| `offer` \| `rejected` |
-| `contact` | string | recruiter name or email |
-| `notes` | string | free text |
-| `date` | number | Unix timestamp (ms) — creation date |
-| `interviews` | array | list of interview round objects |
+Click any card to open the detail panel. In the right pane, you'll see the interview timeline. Click **+ Add round** to log:
 
-**Interview round fields**
+- Interview type (HR screen, Technical, System Design, etc.)
+- Date
+- Interviewer name
+- Outcome (pass, fail, pending)
+- Notes from the round
 
-| Field | Type | Values |
-|---|---|---|
-| `id` | string | uid |
-| `type` | string | `HR screen` \| `Technical screen` \| `System design` \| `Coding interview` \| `Hiring manager` \| `Final / panel` \| `Offer call` \| `Take-home` \| `Recruiter call` \| `Other` |
-| `date` | string | ISO date `YYYY-MM-DD` |
-| `interviewer` | string | free text (optional) |
-| `outcome` | string | `pass` \| `fail` \| `pend` |
-| `note` | string | free text notes from the round |
+### Taking notes
 
----
+The detail panel includes a notes section. Type your thoughts and click **Save notes** to persist them.
 
-## Key functions reference
+### Editing or deleting
 
-All logic lives inside the `<script>` tag in `pipeline.html`.
+Open the card detail panel and click the **Edit** or **Delete** buttons at the bottom.
 
-### Storage engine
-| Function | Purpose |
-|---|---|
-| `initFS_new()` | Prompts user to create a new `.json` file via File System Access API |
-| `initFS_open()` | Prompts user to open an existing `.json` file |
-| `persistData()` | Writes current `processes` array to file or localStorage |
-| `updateStorageIndicator()` | Updates the header status dot and filename label |
+### Exporting your data
 
-### Render
-| Function | Purpose |
-|---|---|
-| `render()` | Full board re-render — rebuilds all 5 columns |
-| `buildCard(p)` | Creates a single kanban card DOM element |
-| `bindDrop()` | Attaches drag-and-drop handlers to all columns |
-| `updateStats()` | Updates Total / Active chips in header |
-
-### Drawer (detail panel)
-| Function | Purpose |
-|---|---|
-| `toggleDrawer(id)` | Opens drawer for a process, or closes if same card clicked |
-| `closeDrawer()` | Closes drawer and clears active state |
-| `populateDrawer(p)` | Fills left pane with process metadata |
-| `markNotesDirty()` | Shows "Save notes" button when notes textarea changes |
-| `saveNotes()` | Persists notes field for active process |
-| `editFromDrawer()` | Opens edit modal pre-filled from active drawer |
-
-### Interview log
-| Function | Purpose |
-|---|---|
-| `renderTimeline(p)` | Renders interview rounds as timeline in drawer right pane |
-| `showRoundForm()` | Injects inline add-round form into drawer |
-| `cancelRoundForm()` | Removes the inline form |
-| `saveRound()` | Appends new round to active process and persists |
-| `deleteRound(pid, rid)` | Removes a round by id |
-
-### Process CRUD
-| Function | Purpose |
-|---|---|
-| `openModal(prefillStatus?)` | Opens add process modal |
-| `closeModal()` | Closes modal |
-| `editProcess(id)` | Opens modal pre-filled for editing |
-| `saveProcess()` | Creates or updates process and persists |
-| `deleteProcess(id)` | Removes process after confirmation |
-
-### Export
-| Function | Purpose |
-|---|---|
-| `exportCSV()` | Downloads all processes as `.csv` (RFC 4180, UTF-8 BOM) |
-| `exportJSON()` | Downloads raw `pipeline.json` (fallback mode only) |
-
----
-
-## CSS architecture
-
-All styles are in the `<style>` tag. Design system uses CSS custom properties:
-
-```css
---bg / --bg2 / --bg3 / --bg4 / --bg5   /* background layers (dark theme) */
---border / --border2 / --border3        /* border opacity levels */
---text / --text2 / --text3              /* text hierarchy */
---accent / --accent2                    /* purple brand accent */
---green / --amber / --red / --cyan      /* semantic status colors */
---c-applied/screening/interview/offer/rejected  /* kanban column accents */
-```
-
-Theme is dark-only. Fonts: `DM Sans` (UI), `DM Mono` (metadata, chips, code-like labels).
+Click the **⋯** menu in the header and select **Export CSV** to download your data as a spreadsheet.
 
 ---
 
 ## Features
 
-### Implemented
-- ✅ **Dark and light theme toggle** — Switch between dark and light UI modes with a header button. Theme preference is saved to the JSON file and persists across devices.
-
-### Planned features / next steps
-
-These have been discussed but not yet built:
-
-1. **Comparison view** — side-by-side evaluation of selected processes with a weighted scoring engine (criteria: salary, role fit, culture, growth, location). Lets user rank opportunities objectively.
-2. **Scoring engine** — define custom criteria with weights, score each process 1–5 per criterion, compute weighted total.
-3. **CSV import** — load processes from a CSV file (reverse of export).
-4. **Stage checklist** (optional hybrid) — predefined pipeline checklist visible on card (HR → Technical → System Design → Offer).
-5. **Deadline / next action field** — date field per process for "next interview" or "offer deadline", shown on card.
-6. **Filter / search** — filter board by status, mode, or free-text search across company/role/notes.
+- **Visual kanban board** — See all opportunities at a glance across 5 stages
+- **Interview timeline** — Log every round with dates, interviewers, and outcomes
+- **Auto-save** — Changes save instantly (Chrome/Edge) or to browser storage (Firefox/Safari)
+- **Dark and light themes** — Toggle with the sun/moon icon in the header
+- **Drag and drop** — Move cards between columns effortlessly
+- **CSV export** — Download your data for analysis in Excel or Google Sheets
+- **Privacy-first** — All data stays on your machine
 
 ---
 
-## Development notes
+## Browser Compatibility
 
-- **No build step** — edit `pipeline.html` directly. Reload browser to see changes.
-- **Testing** — open `pipeline.html` in Chrome. On first load it shows the welcome/file-picker screen.
-- **Seed data** — the `seedData()` function populates sample processes. Called only when no data exists.
-- **File System API** requires a user gesture (button click) to activate — cannot be triggered programmatically on page load. This is a browser security requirement and cannot be worked around.
-- **localStorage key** is `pipeline_v2`. Changing the data model shape requires a migration or key bump.
+| Browser | Storage Method | Auto-save |
+|---|---|---|
+| Chrome / Edge | File on your computer | ✅ Yes |
+| Firefox / Safari | Browser localStorage | ✅ Yes |
+
+**Note for Chrome/Edge users:** The first time you save changes, macOS or Windows may ask for permission to access the folder where your `pipeline.json` file lives. Click **Allow** — this lets the app auto-save your changes. The app only accesses the specific file you selected.
+
+To avoid permission prompts, save your `pipeline.json` in a dedicated folder like `~/pipeline-data/` instead of Documents or Desktop.
 
 ---
 
-## Chrome users: File access permissions
+## Data Privacy
 
-When using Chrome/Edge with the File System Access API, you may see a permission dialog from macOS or Windows when the app saves changes:
+Your data never leaves your computer. There are no servers, no cloud storage, no analytics. The app runs entirely in your browser and writes to a JSON file you control.
 
-![Chrome file access permission dialog](images/chrome-access-docs.jpg)
+---
 
-> "Google Chrome.app" would like to access files in your Documents folder.
+## Troubleshooting
 
-### Why this happens
+### App stuck on welcome screen after creating file
 
-- When you create or open a `pipeline.json` file in a protected folder (Documents, Desktop, Downloads)
-- And make changes (add/edit/delete a card, update notes, etc.)
-- Chrome needs to write to that file, so the OS asks for folder access permission
+This was fixed in recent versions. Make sure you're using the latest `pipeline.html` from this repository.
 
-### What to do
+### Chrome asks for file access permission
 
-**Click "OK" or "Allow"** — this is safe and necessary for auto-save to work. The app only writes to the specific file you selected.
+This is normal behavior when using the File System Access API. Click **Allow** to enable auto-save. See the Browser Compatibility section above for details.
 
-### To avoid permission prompts
+### I want to move my data to another computer
 
-Save your `pipeline.json` file in a non-protected location:
-- Create a dedicated folder like `~/pipeline-data/`
-- Or use any folder outside Documents/Desktop/Downloads
+Copy your `pipeline.json` file to the new computer and open it with Pipeline using **"Open existing file"**.
 
-### Alternative: Browser storage
+### Firefox/Safari: How do I export my data?
 
-If you prefer to avoid these prompts entirely, use the browser storage fallback:
-- Firefox and Safari use localStorage by default (no file permissions needed)
-- In Chrome, the app automatically falls back to localStorage if file access fails
+Click the **⋯** menu and select **Export JSON** to download your data file.
+
+---
+
+## Planned Features
+
+These features are being considered for future releases:
+
+- **Comparison view** — Side-by-side evaluation with scoring
+- **CSV import** — Load processes from a spreadsheet
+- **Filter and search** — Find specific companies or roles quickly
+- **Deadline tracking** — Set reminders for next interviews or offer deadlines
+
+---
+
+## Contributing
+
+This is a single-file web app with no build process. To contribute:
+
+1. Fork this repository
+2. Edit `pipeline.html` directly
+3. Test by opening the file in your browser
+4. Submit a pull request
+
+For technical documentation, see `TECHNICAL.md` (included in the repository but not published to GitHub).
+
+---
+
+## License
+
+MIT License — use this app however you like. See LICENSE file for details.
+
+---
+
+## Support
+
+Found a bug or have a feature request? Open an issue on GitHub or submit a pull request.
