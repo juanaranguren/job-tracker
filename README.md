@@ -2,8 +2,6 @@
 
 A simple, local-first web app for tracking multiple job applications in one place. No installation required, no cloud storage, no subscription. Just open the HTML file and start organizing your job search.
 
-![Pipeline Screenshot](images/chrome-access-docs.jpg)
-
 ---
 
 ## What is Pipeline?
@@ -122,7 +120,10 @@ This was fixed in recent versions. Make sure you're using the latest `pipeline.h
 
 ### Chrome asks for file access permission
 
+![Pipeline Screenshot](images/chrome-access-docs.jpg)
+
 This is normal behavior when using the File System Access API. Click **Allow** to enable auto-save. See the Browser Compatibility section above for details.
+
 
 ### I want to move my data to another computer
 
@@ -131,17 +132,6 @@ Copy your `pipeline.json` file to the new computer and open it with Pipeline usi
 ### Firefox/Safari: How do I export my data?
 
 Click the **⋯** menu and select **Export JSON** to download your data file.
-
----
-
-## Planned Features
-
-These features are being considered for future releases:
-
-- **Comparison view** — Side-by-side evaluation with scoring
-- **CSV import** — Load processes from a spreadsheet
-- **Filter and search** — Find specific companies or roles quickly
-- **Deadline tracking** — Set reminders for next interviews or offer deadlines
 
 ---
 
