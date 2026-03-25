@@ -15,6 +15,11 @@ pipeline.json
 # Technical documentation (kept local only)
 TECHNICAL.md
 
+# Test files (kept local only)
+TEST-CHECKLIST.md
+TESTING.md
+test-helpers.js
+
 # SSH keys
 jobtracker
 jobtracker.pub
