@@ -19,6 +19,7 @@ TECHNICAL.md
 TEST-CHECKLIST.md
 TESTING.md
 test-helpers.js
+test-suite.html
 
 # SSH keys
 jobtracker
