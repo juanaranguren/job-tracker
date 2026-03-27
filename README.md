@@ -1,12 +1,12 @@
-# Pipeline — Job Opportunity Tracker
+# Job Tracker - Pipeline
 
 A simple, local-first web app for tracking multiple job applications in one place. No installation required, no cloud storage, no subscription. Just open the HTML file and start organizing your job search.
 
 ---
 
-## What is Pipeline?
+## What is Job Tracker?
 
-Pipeline helps IT professionals manage multiple recruiting processes simultaneously. Instead of scattered spreadsheets or losing track of which company you're at what stage with, Pipeline gives you a visual kanban board to track every opportunity from application to offer.
+Pipeline helps IT professionals manage multiple recruiting processes simultaneously. Instead of scattered notes and spreadsheets, or losing track of which company you're at what stage with, Job Tracker gives you a visual kanban board to track every opportunity from application to offer.
 
 **Key benefits:**
 - Your data never leaves your computer
