@@ -1,7 +1,8 @@
 # Job Tracker - Pipeline
 
-A simple, local-first web app for tracking multiple job applications in one place. No installation required, no cloud storage, no subscription. Just open the HTML file and start organizing your job search.
+Track every job opportunity from first application to final offer — in a single HTML file that runs in your browser, saves to your own disk, and never phones home.
 
+![Home Screenshot](images/opener.jpg)
 ---
 
 ## What is Job Tracker?
@@ -22,6 +23,7 @@ Job Tracker helps professionals manage multiple job applications and recruiting 
 ### 1. Download the app
 
 Download `pipeline.html` from this repository or clone it:
+(If you're not a developer, ignore this and just download the file directly)
 
 ```bash
 git clone https://github.com/yourusername/job-tracker.git
@@ -37,7 +39,9 @@ Note: For more technical details, see the Browser Compatibility section below.
 
 ### 3. Create your data file
 
-On first launch, click **"Create new pipeline file"** and choose where to save your `pipeline.json` file. The app will create sample data so you can explore the interface.
+On first launch, click **"Create new pipeline file"** and choose where to save your `pipeline.json` file.
+Your browser will open a folder picker — choose where you'd like your data to live. We recommend a dedicated folder like pipeline-data on your Desktop.
+Then the app will create sample data so you can explore the interface.
 
 That's it! You're ready to track your job applications.
 
@@ -58,7 +62,7 @@ Click the **+ New** button in any column (Applied, Screening, Interview, Offer, 
 
 ### Moving cards
 
-Drag and drop cards between columns as your application progresses. Your changes save automatically.
+Drag and drop cards between columns as your application progresses. Your changes save automatically. On Chrome/Edge, directly to your pipeline.json file. On Firefox/Safari, to browser storage (see Browser Compatibility below).
 
 ### Tracking interview rounds
 
@@ -98,7 +102,7 @@ Click the **⋯** menu in the header and select **Export CSV** to download your 
 
 ## Browser Compatibility
 
-Pipeline works in all modern browsers, but the storage method differs:
+Job Tracker works in all modern browsers, but the storage method differs:
 
 | Browser | Storage Method | Auto-save | File Picker |
 |---|---|---|---|
@@ -115,12 +119,12 @@ Pipeline works in all modern browsers, but the storage method differs:
 
 ### Firefox / Safari
 
-**Fallback mode.** These browsers don't support the File System Access API yet, so Pipeline stores your data in the browser's localStorage instead.
+**Fallback mode.** These browsers don't support the File System Access API yet, so Job Tracker stores your data in the browser's localStorage instead.
 
 **Limitations:**
 - Your data is tied to the browser and domain (if using GitHub Pages)
 - To back up or transfer data, use **⋯ menu → Export JSON** to download your `pipeline.json` file
-- Clearing browser data will erase your job tracking data
+- IMPORTANT: Clearing browser data (cache) will erase your job tracking data
 
 **Recommendation:** For the best experience and true local-first file storage, use Chrome or Edge.
 
@@ -132,7 +136,7 @@ Pipeline works in all modern browsers, but the storage method differs:
 
 ### Running from GitHub Pages
 
-You can use Pipeline directly from GitHub Pages without downloading anything. The app is served from GitHub Pages, but **runs entirely in your browser**. It reads and writes a `pipeline.json` file you control on your own disk (Chrome/Edge) or stores data in your browser's localStorage (Firefox/Safari).
+You can use Job Tracker directly from GitHub Pages without downloading anything. The app is served from GitHub Pages, but **runs entirely in your browser**. It reads and writes a `pipeline.json` file you control on your own disk (Chrome/Edge) or stores data in your browser's localStorage (Firefox/Safari).
 
 **What this means:**
 - The HTML/CSS/JavaScript files are loaded from GitHub Pages once
@@ -140,9 +144,9 @@ You can use Pipeline directly from GitHub Pages without downloading anything. Th
 - Your job data never gets sent to any server
 - GitHub (or anyone else) cannot see your data
 
-### Running Offline (Recommended)
+### Running Offline
 
-For complete privacy and offline access, download `pipeline.html` and run it locally:
+One of the benefits of this app is that you can run it offline:
 
 **Benefits:**
 - **Zero internet dependency** — works without any network connection
@@ -161,9 +165,7 @@ To use offline:
 
 ## Troubleshooting
 
-### App stuck on welcome screen after creating file
-
-This was fixed in recent versions. Make sure you're using the latest `pipeline.html` from this repository.
+To get the most recent fixes, always make sure you're using the latest `pipeline.html` from this repository.
 
 ### Chrome asks for file access permission
 
@@ -184,7 +186,9 @@ Click the **⋯** menu and select **Export JSON** to download your data file.
 
 ## Contributing
 
-This is a single-file web app with no build process. To contribute:
+This is a single-file web app with no build process. 
+Not a developer? The best way to contribute is to use the app and share feedback by opening an issue — bug reports and feature ideas are just as valuable as code.
+To contribute as a Developer:
 
 1. Fork this repository
 2. Edit `pipeline.html` directly
