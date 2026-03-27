@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pipeline Test Suite (Simple)</title>
+
+  <!-- Jasmine CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jasmine-core@5/lib/jasmine-core/jasmine.css">
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-header {
+      background: #6c5ce7;
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .test-header h1 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+    }
+    .test-header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 14px;
+    }
+    .test-info {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #00b894;
+    }
+    .test-info h3 {
+      margin: 0 0 8px 0;
+      color: #333;
+      font-size: 16px;
+    }
+    .test-info p {
+      margin: 0;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-header">
+    <h1>✓ Pipeline Test Suite</h1>
+    <p>Simple standalone automated tests • No backend required • Powered by Jasmine</p>
+  </div>
+
+  <div class="test-info">
+    <h3>How this works</h3>
+    <p>
+      This test suite runs <strong>completely standalone</strong> in your browser.
+      It tests the core functions and data structures from pipeline.html without needing
+      any backend services, build tools, or external dependencies (except Jasmine from CDN).
+    </p>
+  </div>
+
+  <!-- Jasmine Core -->
+  <script src="https://cdn.jsdelivr.net/npm/jasmine-core@5/lib/jasmine-core/jasmine.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jasmine-core@5/lib/jasmine-core/jasmine-html.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jasmine-core@5/lib/jasmine-core/boot0.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jasmine-core@5/lib/jasmine-core/boot1.js"></script>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // CORE FUNCTIONS FROM pipeline.html (copied for standalone testing)
+    // ═══════════════════════════════════════════════════════════════
+
+    const LS_KEY = 'pipeline_v2';
+    let storageMode = 'local';
+    let currentTheme = 'dark';
+    let processes = [];
+    const FS_SUPPORTED = ('showOpenFilePicker' in window);
+
+    // Utility: escape HTML
+    function esc(s) {
+      return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Utility: generate unique ID
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+
+    // Seed initial data
+    function seedData() {
+      processes = [
+        {
+          id: uid(),
+          company: 'Stripe',
+          role: 'Staff Engineer',
+          salary: '$180k-$220k',
+          mode: 'remote',
+          status: 'interview',
+          contact: 'james@stripe.com',
+          notes: 'System design round next week.',
+          date: Date.now(),
+          interviews: [
+            {
+              id: uid(),
+              type: 'HR screen',
+              date: '2026-03-03',
+              interviewer: 'Sarah K.',
+              outcome: 'pass',
+              note: 'Great fit'
+            }
+          ]
+        },
+        {
+          id: uid(),
+          company: 'Anthropic',
+          role: 'Senior Engineer',
+          salary: '$160k-$200k',
+          mode: 'remote',
+          status: 'applied',
+          contact: '',
+          notes: '',
+          date: Date.now(),
+          interviews: []
+        },
+        {
+          id: uid(),
+          company: 'Vercel',
+          role: 'Frontend Lead',
+          salary: '$140k-$180k',
+          mode: 'hybrid',
+          status: 'screening',
+          contact: 'hiring@vercel.com',
+          notes: 'Recruiter call went well',
+          date: Date.now(),
+          interviews: []
+        },
+        {
+          id: uid(),
+          company: 'OpenAI',
+          role: 'ML Engineer',
+          salary: '$200k-$250k',
+          mode: 'onsite',
+          status: 'offer',
+          contact: 'talent@openai.com',
+          notes: 'Offer received! Need to respond by Friday.',
+          date: Date.now(),
+          interviews: [
+            {
+              id: uid(),
+              type: 'Technical screen',
+              date: '2026-03-10',
+              interviewer: 'Alex P.',
+              outcome: 'pass',
+              note: 'Strong coding skills'
+            },
+            {
+              id: uid(),
+              type: 'System design',
+              date: '2026-03-17',
+              interviewer: 'Jordan L.',
+              outcome: 'pass',
+              note: 'Excellent system design approach'
+            }
+          ]
+        },
+        {
+          id: uid(),
+          company: 'Meta',
+          role: 'Software Engineer',
+          salary: '$150k-$190k',
+          mode: 'hybrid',
+          status: 'rejected',
+          contact: '',
+          notes: 'Not a culture fit.',
+          date: Date.now(),
+          interviews: [
+            {
+              id: uid(),
+              type: 'HR screen',
+              date: '2026-02-28',
+              interviewer: 'Chris M.',
+              outcome: 'fail',
+              note: 'Timeline mismatch'
+            }
+          ]
+        }
+      ];
+    }
+
+    // Persist data to localStorage
+    async function persistData() {
+      const payload = {
+        version: 2,
+        lastSaved: new Date().toISOString(),
+        theme: currentTheme,
+        processes
+      };
+      localStorage.setItem(LS_KEY, JSON.stringify(payload));
+    }
+
+    // Load data from localStorage
+    async function loadData() {
+      const stored = localStorage.getItem(LS_KEY);
+      if (stored) {
+        try {
+          const payload = JSON.parse(stored);
+          processes = payload.processes || [];
+          currentTheme = payload.theme || 'dark';
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+      return false;
+    }
+
+    // CSV export columns
+    const CSV_COLS = ['company', 'role', 'salary', 'mode', 'status', 'contact', 'notes'];
+
+    function exportCSV() {
+      const header = CSV_COLS.join(',');
+      const rows = processes.map(p => {
+        return CSV_COLS.map(col => {
+          let val = p[col] || '';
+          // Escape CSV values
+          if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+            val = '"' + val.replace(/"/g, '""') + '"';
+          }
+          return val;
+        }).join(',');
+      });
+      return header + '\n' + rows.join('\n');
+    }
+
+    function exportJSON() {
+      const payload = {
+        version: 2,
+        lastSaved: new Date().toISOString(),
+        theme: currentTheme,
+        processes
+      };
+      return JSON.stringify(payload, null, 2);
+    }
+
+    // Initialize with seed data for testing
+    seedData();
+
+    // ═══════════════════════════════════════════════════════════════
+    // JASMINE TESTS
+    // ═══════════════════════════════════════════════════════════════
+
+    describe('Section 1: Basic State', () => {
+      it('should have processes loaded', () => {
+        expect(processes).toBeDefined();
+        expect(processes.length).toBeGreaterThan(0);
+      });
+
+      it('should have valid storage mode', () => {
+        expect(['fs', 'local']).toContain(storageMode);
+      });
+
+      it('should have valid theme', () => {
+        expect(['dark', 'light']).toContain(currentTheme);
+      });
+
+      it('should have File System API support flag', () => {
+        expect(FS_SUPPORTED).toBeDefined();
+        expect(typeof FS_SUPPORTED).toBe('boolean');
+      });
+    });
+
+    describe('Section 2: Data Validation', () => {
+      it('should have all processes with required fields', () => {
+        processes.forEach(p => {
+          expect(p.id).toBeTruthy();
+          expect(p.company).toBeTruthy();
+          expect(p.status).toBeTruthy();
+          expect(p.date).toBeDefined();
+        });
+      });
+
+      it('should have valid status values', () => {
+        const validStatuses = ['applied', 'screening', 'interview', 'offer', 'rejected'];
+        processes.forEach(p => {
+          expect(validStatuses).toContain(p.status);
+        });
+      });
+
+      it('should have valid mode values', () => {
+        const validModes = ['remote', 'hybrid', 'onsite', ''];
+        processes.forEach(p => {
+          expect(validModes).toContain(p.mode || '');
+        });
+      });
+
+      it('should have interviews array in each process', () => {
+        processes.forEach(p => {
+          expect(Array.isArray(p.interviews)).toBe(true);
+        });
+      });
+
+      it('should have valid interview outcome values', () => {
+        const validOutcomes = ['pass', 'fail', 'pend'];
+        processes.forEach(p => {
+          p.interviews?.forEach(i => {
+            expect(validOutcomes).toContain(i.outcome);
+          });
+        });
+      });
+    });
+
+    describe('Section 3: Process CRUD Operations', () => {
+      let originalProcessCount;
+
+      beforeEach(() => {
+        originalProcessCount = processes.length;
+      });
+
+      it('should create a new process', async () => {
+        const newProcess = {
+          id: uid(),
+          company: 'Test Company',
+          role: 'Test Role',
+          salary: '$100k-$150k',
+          mode: 'remote',
+          status: 'applied',
+          contact: 'test@example.com',
+          notes: 'Test notes',
+          date: Date.now(),
+          interviews: []
+        };
+
+        processes.push(newProcess);
+        await persistData();
+
+        expect(processes.length).toBe(originalProcessCount + 1);
+
+        const found = processes.find(p => p.company === 'Test Company');
+        expect(found).toBeDefined();
+        expect(found.role).toBe('Test Role');
+      });
+
+      it('should update an existing process', () => {
+        const process = processes[0];
+        const originalRole = process.role;
+
+        process.role = 'Updated Role';
+        expect(processes[0].role).toBe('Updated Role');
+
+        // Restore
+        process.role = originalRole;
+      });
+
+      it('should delete a process', () => {
+        const testProcess = processes.find(p => p.company === 'Test Company');
+        if (testProcess) {
+          const beforeCount = processes.length;
+          processes = processes.filter(p => p.id !== testProcess.id);
+          expect(processes.length).toBe(beforeCount - 1);
+        } else {
+          pending('No test process to delete');
+        }
+      });
+
+      it('should add interview round to process', () => {
+        const process = processes[0];
+        const initialCount = process.interviews?.length || 0;
+
+        if (!process.interviews) process.interviews = [];
+
+        process.interviews.push({
+          id: uid(),
+          type: 'Technical screen',
+          date: '2026-03-26',
+          interviewer: 'Test Interviewer',
+          outcome: 'pass',
+          note: 'Test interview'
+        });
+
+        expect(process.interviews.length).toBe(initialCount + 1);
+
+        // Cleanup
+        process.interviews.pop();
+      });
+    });
+
+    describe('Section 4: Storage Engine', () => {
+      it('should have localStorage key defined', () => {
+        expect(LS_KEY).toBe('pipeline_v2');
+      });
+
+      it('should persist data to localStorage', async () => {
+        await persistData();
+
+        const stored = localStorage.getItem(LS_KEY);
+        expect(stored).toBeTruthy();
+
+        const parsed = JSON.parse(stored);
+        expect(parsed.version).toBe(2);
+        expect(parsed.processes).toBeDefined();
+        expect(parsed.theme).toBeDefined();
+        expect(parsed.lastSaved).toBeDefined();
+      });
+
+      it('should have valid payload structure', async () => {
+        await persistData();
+
+        const stored = localStorage.getItem(LS_KEY);
+        const payload = JSON.parse(stored);
+
+        expect(payload.version).toBe(2);
+        expect(Array.isArray(payload.processes)).toBe(true);
+        expect(['dark', 'light']).toContain(payload.theme);
+        expect(new Date(payload.lastSaved).getTime()).toBeGreaterThan(0);
+      });
+
+      it('should load data from localStorage', async () => {
+        // Save first
+        await persistData();
+
+        // Clear processes
+        processes = [];
+
+        // Load back
+        const loaded = await loadData();
+        expect(loaded).toBe(true);
+        expect(processes.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('Section 5: Utility Functions', () => {
+      it('should escape HTML correctly', () => {
+        expect(esc('<script>')).toBe('&lt;script&gt;');
+        expect(esc('A & B')).toBe('A &amp; B');
+        expect(esc('"quoted"')).toBe('&quot;quoted&quot;');
+      });
+
+      it('should handle null/undefined in esc()', () => {
+        expect(esc(null)).toBe('');
+        expect(esc(undefined)).toBe('');
+      });
+
+      it('should generate unique IDs', () => {
+        const id1 = uid();
+        const id2 = uid();
+
+        expect(id1).toBeTruthy();
+        expect(id2).toBeTruthy();
+        expect(id1).not.toBe(id2);
+      });
+
+      it('should generate IDs in correct format', () => {
+        const id = uid();
+        // Should be alphanumeric base36
+        expect(/^[a-z0-9]+$/.test(id)).toBe(true);
+      });
+    });
+
+    describe('Section 6: Export Functions', () => {
+      it('should export CSV with header', () => {
+        const csv = exportCSV();
+        const lines = csv.split('\n');
+
+        expect(lines[0]).toBe('company,role,salary,mode,status,contact,notes');
+      });
+
+      it('should export CSV with all processes', () => {
+        const csv = exportCSV();
+        const lines = csv.split('\n');
+
+        // Header + process rows
+        expect(lines.length).toBe(processes.length + 1);
+      });
+
+      it('should escape CSV values with commas', () => {
+        const testProcess = {
+          id: uid(),
+          company: 'Test, Inc.',
+          role: 'Engineer',
+          salary: '',
+          mode: 'remote',
+          status: 'applied',
+          contact: '',
+          notes: '',
+          date: Date.now(),
+          interviews: []
+        };
+
+        processes.push(testProcess);
+        const csv = exportCSV();
+
+        // Should quote company name with comma
+        expect(csv).toContain('"Test, Inc."');
+
+        // Cleanup
+        processes.pop();
+      });
+
+      it('should export JSON with correct structure', () => {
+        const json = exportJSON();
+        const parsed = JSON.parse(json);
+
+        expect(parsed.version).toBe(2);
+        expect(parsed.theme).toBeDefined();
+        expect(parsed.lastSaved).toBeDefined();
+        expect(Array.isArray(parsed.processes)).toBe(true);
+      });
+    });
+
+    describe('Section 7: Data Integrity', () => {
+      it('should maintain data after multiple operations', async () => {
+        const initialCount = processes.length;
+
+        // Add
+        processes.push({
+          id: uid(),
+          company: 'Integrity Test Co',
+          role: 'Test',
+          salary: '',
+          mode: 'remote',
+          status: 'applied',
+          contact: '',
+          notes: '',
+          date: Date.now(),
+          interviews: []
+        });
+
+        await persistData();
+
+        // Update
+        const testProcess = processes.find(p => p.company === 'Integrity Test Co');
+        testProcess.status = 'interview';
+
+        await persistData();
+
+        // Verify
+        const stored = localStorage.getItem(LS_KEY);
+        const parsed = JSON.parse(stored);
+        const foundInStorage = parsed.processes.find(p => p.company === 'Integrity Test Co');
+
+        expect(foundInStorage).toBeDefined();
+        expect(foundInStorage.status).toBe('interview');
+
+        // Cleanup
+        processes = processes.filter(p => p.company !== 'Integrity Test Co');
+      });
+
+      it('should handle empty interviews array', () => {
+        const processWithNoInterviews = processes.find(p => p.interviews.length === 0);
+        expect(processWithNoInterviews).toBeDefined();
+        expect(Array.isArray(processWithNoInterviews.interviews)).toBe(true);
+      });
+
+      it('should preserve all interview data', () => {
+        const processWithInterviews = processes.find(p => p.interviews.length > 0);
+        if (processWithInterviews) {
+          const interview = processWithInterviews.interviews[0];
+          expect(interview.id).toBeTruthy();
+          expect(interview.type).toBeTruthy();
+          expect(interview.date).toBeTruthy();
+          expect(interview.outcome).toBeTruthy();
+        }
+      });
+    });
+
+    console.log('%c✓ All tests loaded successfully', 'color: #00b894; font-weight: bold; font-size: 14px');
+  </script>
+</body>
+</html>
