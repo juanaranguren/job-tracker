@@ -1,19 +1,19 @@
-# Pipeline — Job Opportunity Tracker
+# Job Tracker - Pipeline
 
 A simple, local-first web app for tracking multiple job applications in one place. No installation required, no cloud storage, no subscription. Just open the HTML file and start organizing your job search.
 
 ---
 
-## What is Pipeline?
+## What is Job Tracker?
 
-Pipeline helps IT professionals manage multiple recruiting processes simultaneously. Instead of scattered spreadsheets or losing track of which company you're at what stage with, Pipeline gives you a visual kanban board to track every opportunity from application to offer.
+Job Tracker helps professionals manage multiple job applications and recruiting processes in one place. Instead of relying on scattered notes or complex spreadsheets, Job Tracker provides a visual board to track every opportunity—from the initial application to the final offer.
 
 **Key benefits:**
-- Your data never leaves your computer
-- Works offline
-- No account creation or login
-- Single HTML file — no installation needed
-- Free and open source
+- Privacy first: Your data stays on your computer, never in the cloud.
+- Works offline: Access your information anytime, without an internet connection.
+- Zero friction: No accounts, no logins, and no passwords to remember.
+- Portable: It’s a single file that runs in your browser—no installation required.
+- 100% Free: Open-source and transparent.
 
 ---
 
@@ -30,7 +30,10 @@ cd job-tracker
 
 ### 2. Open in your browser
 
-Double-click `pipeline.html` or open it in Chrome, Edge, Firefox, or Safari.
+Just open the `pipeline.html` file in your preferred web browser (Chrome, Edge, Firefox, or Safari).
+
+Note: For more technical details, see the Browser Compatibility section below.
+
 
 ### 3. Create your data file
 
