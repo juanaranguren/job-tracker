@@ -1223,10 +1223,18 @@ function getFilteredProcesses() {
   return processes.filter(p => {
     // Text search filter
     if (filterSearchText) {
+      const interviewData = (p.interviews || []).flatMap(i => [
+        i.interviewer || '',
+        i.interviewerPhone || '',
+        i.interviewerEmail || '',
+        i.note || ''
+      ]);
+
       const searchIn = [
         p.company || '',
         p.role || '',
-        p.notes || ''
+        p.notes || '',
+        ...interviewData
       ].join(' ').toLowerCase();
 
       if (!searchIn.includes(filterSearchText)) return false;
