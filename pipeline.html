@@ -738,7 +738,10 @@ textarea.mfi{resize:vertical;min-height:68px;line-height:1.5;}
         <div class="meta-card"><div class="meta-label">Status</div><div class="meta-val" id="d-status">—</div></div>
         <div class="meta-card"><div class="meta-label">Work mode</div><div class="meta-val" id="d-mode">—</div></div>
         <div class="meta-card"><div class="meta-label">Salary range</div><div class="meta-val" id="d-salary">—</div></div>
-        <div class="meta-card"><div class="meta-label">Contact</div><div class="meta-val" id="d-contact">—</div></div>
+        <div class="meta-card"><div class="meta-label">Salary period</div><div class="meta-val" id="d-salary-period">—</div></div>
+        <div class="meta-card"><div class="meta-label">Contact name</div><div class="meta-val" id="d-contact-name">—</div></div>
+        <div class="meta-card"><div class="meta-label">Contact phone</div><div class="meta-val" id="d-contact-phone">—</div></div>
+        <div class="meta-card"><div class="meta-label">Contact email</div><div class="meta-val" id="d-contact-email">—</div></div>
         <div class="meta-card"><div class="meta-label">Added</div><div class="meta-val" id="d-added">—</div></div>
         <div class="meta-card"><div class="meta-label">Days active</div><div class="meta-val" id="d-days">—</div></div>
       </div>
@@ -776,6 +779,16 @@ textarea.mfi{resize:vertical;min-height:68px;line-height:1.5;}
     </div>
     <div class="mform-row">
       <label class="mform-label"><span class="mfl">Salary range</span><input class="mfi" type="text" id="f-salary" placeholder="e.g. $140k–$170k"></label>
+      <label class="mform-label"><span class="mfl">Salary period</span>
+        <select class="mfi" id="f-salary-period">
+          <option value="">— select —</option>
+          <option value="yearly">Yearly</option>
+          <option value="monthly">Monthly</option>
+          <option value="hourly">Hourly</option>
+        </select>
+      </label>
+    </div>
+    <div class="mform-row">
       <label class="mform-label"><span class="mfl">Work mode</span>
         <select class="mfi" id="f-mode">
           <option value="">— select —</option>
@@ -784,8 +797,6 @@ textarea.mfi{resize:vertical;min-height:68px;line-height:1.5;}
           <option value="onsite">On-site</option>
         </select>
       </label>
-    </div>
-    <div class="mform-row">
       <label class="mform-label"><span class="mfl">Status</span>
         <select class="mfi" id="f-status">
           <option value="applied">Applied</option>
@@ -795,7 +806,14 @@ textarea.mfi{resize:vertical;min-height:68px;line-height:1.5;}
           <option value="rejected">Rejected</option>
         </select>
       </label>
-      <label class="mform-label"><span class="mfl">Contact</span><input class="mfi" type="text" id="f-contact" placeholder="Recruiter name or email"></label>
+    </div>
+    <div class="mform-row">
+      <label class="mform-label"><span class="mfl">Contact name</span><input class="mfi" type="text" id="f-contact-name" placeholder="Recruiter name"></label>
+      <label class="mform-label"><span class="mfl">Contact phone</span><input class="mfi" type="tel" id="f-contact-phone" placeholder="Phone number"></label>
+    </div>
+    <div class="mform-row">
+      <label class="mform-label"><span class="mfl">Contact email</span><input class="mfi" type="email" id="f-contact-email" placeholder="Email address"></label>
+      <div></div>
     </div>
     <div class="mform-row single">
       <label class="mform-label"><span class="mfl">Notes</span><textarea class="mfi" id="f-notes" placeholder="Stack, culture, referral source…"></textarea></label>
@@ -942,40 +960,43 @@ function seedData() {
   processes = [
     {
       id: uid(), company: 'Stripe', role: 'Staff Engineer',
-      salary: '$180k–$220k', mode: 'remote', status: 'interview',
-      contact: 'james@stripe.com',
+      salary: '$180k–$220k', salaryPeriod: 'yearly', mode: 'remote', status: 'interview',
+      contactName: 'James Chen', contactPhone: '+1-555-0123', contactEmail: 'james@stripe.com',
       notes: 'System design round next week. Focus on distributed systems.',
       date: now - 86400000*3,
       interviews: [
-        { id: uid(), type: 'HR screen', date: '2026-03-03', interviewer: 'Sarah K.', outcome: 'pass', note: 'Great culture fit. Fast-paced, high ownership.' },
-        { id: uid(), type: 'Technical screen', date: '2026-03-10', interviewer: 'Alex T.', outcome: 'pass', note: 'LeetCode medium. Finished with time to spare.' },
-        { id: uid(), type: 'System design', date: '2026-03-18', interviewer: 'Priya M.', outcome: 'pend', note: 'Designed a rate limiter. Went deep on consistency.' },
+        { id: uid(), type: 'HR screen', date: '2026-03-03', interviewer: 'Sarah K.', interviewerPhone: '', interviewerEmail: 'sarah.k@stripe.com', outcome: 'pass', note: 'Great culture fit. Fast-paced, high ownership.' },
+        { id: uid(), type: 'Technical screen', date: '2026-03-10', interviewer: 'Alex T.', interviewerPhone: '', interviewerEmail: '', outcome: 'pass', note: 'LeetCode medium. Finished with time to spare.' },
+        { id: uid(), type: 'System design', date: '2026-03-18', interviewer: 'Priya M.', interviewerPhone: '', interviewerEmail: '', outcome: 'pend', note: 'Designed a rate limiter. Went deep on consistency.' },
       ]
     },
     {
       id: uid(), company: 'Vercel', role: 'Principal SRE',
-      salary: '$160k–$195k', mode: 'remote', status: 'screening',
-      contact: 'Sarah M.', notes: 'Initial HR call done. Technical screen pending.',
+      salary: '$160k–$195k', salaryPeriod: 'yearly', mode: 'remote', status: 'screening',
+      contactName: 'Sarah M.', contactPhone: '', contactEmail: 'sarah@vercel.com',
+      notes: 'Initial HR call done. Technical screen pending.',
       date: now - 86400000*5, interviews: [
-        { id: uid(), type: 'HR screen', date: '2026-03-15', interviewer: 'Sarah M.', outcome: 'pass', note: 'Good intro. They move fast.' }
+        { id: uid(), type: 'HR screen', date: '2026-03-15', interviewer: 'Sarah M.', interviewerPhone: '', interviewerEmail: '', outcome: 'pass', note: 'Good intro. They move fast.' }
       ]
     },
     {
       id: uid(), company: 'Linear', role: 'Engineering Lead',
-      salary: '', mode: 'hybrid', status: 'applied',
-      contact: '', notes: 'Referred by a friend on the platform team.',
+      salary: '', salaryPeriod: '', mode: 'hybrid', status: 'applied',
+      contactName: '', contactPhone: '', contactEmail: '',
+      notes: 'Referred by a friend on the platform team.',
       date: now - 86400000*2, interviews: []
     },
     {
       id: uid(), company: 'HashiCorp', role: 'Platform Architect',
-      salary: '$170k–$200k', mode: 'remote', status: 'offer',
-      contact: 'recruiter@hashi.io', notes: 'Offer received! Expires in 7 days.',
+      salary: '$170k–$200k', salaryPeriod: 'yearly', mode: 'remote', status: 'offer',
+      contactName: 'Recruiter', contactPhone: '', contactEmail: 'recruiter@hashi.io',
+      notes: 'Offer received! Expires in 7 days.',
       date: now - 86400000*10,
       interviews: [
-        { id: uid(), type: 'HR screen', date: '2026-02-12', interviewer: 'Dana L.', outcome: 'pass', note: '' },
-        { id: uid(), type: 'Technical screen', date: '2026-02-19', interviewer: 'Marco R.', outcome: 'pass', note: 'Terraform deep dive.' },
-        { id: uid(), type: 'System design', date: '2026-02-26', interviewer: 'Chen W.', outcome: 'pass', note: 'Distributed config system. Went very well.' },
-        { id: uid(), type: 'Final / panel', date: '2026-03-05', interviewer: 'Leadership panel', outcome: 'pass', note: 'Three VPs. Vision and leadership focused.' },
+        { id: uid(), type: 'HR screen', date: '2026-02-12', interviewer: 'Dana L.', interviewerPhone: '', interviewerEmail: '', outcome: 'pass', note: '' },
+        { id: uid(), type: 'Technical screen', date: '2026-02-19', interviewer: 'Marco R.', interviewerPhone: '', interviewerEmail: '', outcome: 'pass', note: 'Terraform deep dive.' },
+        { id: uid(), type: 'System design', date: '2026-02-26', interviewer: 'Chen W.', interviewerPhone: '', interviewerEmail: '', outcome: 'pass', note: 'Distributed config system. Went very well.' },
+        { id: uid(), type: 'Final / panel', date: '2026-03-05', interviewer: 'Leadership panel', interviewerPhone: '', interviewerEmail: '', outcome: 'pass', note: 'Three VPs. Vision and leadership focused.' },
       ]
     },
   ];
@@ -1154,15 +1175,18 @@ function closeDrawer() {
 }
 
 function populateDrawer(p) {
-  document.getElementById('d-co').textContent      = p.company;
-  document.getElementById('d-role').textContent    = p.role || '—';
-  document.getElementById('d-status').textContent  = p.status;
-  document.getElementById('d-mode').textContent    = p.mode || '—';
-  document.getElementById('d-salary').textContent  = p.salary || '—';
-  document.getElementById('d-contact').textContent = p.contact || '—';
-  document.getElementById('d-added').textContent   = new Date(p.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  document.getElementById('d-days').textContent    = Math.floor((Date.now()-p.date)/86400000) + ' days';
-  document.getElementById('d-notes').value         = p.notes || '';
+  document.getElementById('d-co').textContent             = p.company;
+  document.getElementById('d-role').textContent           = p.role || '—';
+  document.getElementById('d-status').textContent         = p.status;
+  document.getElementById('d-mode').textContent           = p.mode || '—';
+  document.getElementById('d-salary').textContent         = p.salary || '—';
+  document.getElementById('d-salary-period').textContent  = p.salaryPeriod || '—';
+  document.getElementById('d-contact-name').textContent   = p.contactName || '—';
+  document.getElementById('d-contact-phone').textContent  = p.contactPhone || '—';
+  document.getElementById('d-contact-email').textContent  = p.contactEmail || '—';
+  document.getElementById('d-added').textContent          = new Date(p.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  document.getElementById('d-days').textContent           = Math.floor((Date.now()-p.date)/86400000) + ' days';
+  document.getElementById('d-notes').value                = p.notes || '';
   notesDirty = false;
   document.getElementById('btn-save-notes').style.display = 'none';
   renderTimeline(p);
@@ -1197,19 +1221,31 @@ function renderTimeline(p) {
     tl.innerHTML = '<div class="empty-log">No interviews logged yet.<br>Add the first round with the button above.</div>';
     return;
   }
-  tl.innerHTML = rounds.map((r,i) => `
+  tl.innerHTML = rounds.map((r,i) => {
+    let interviewerInfo = '';
+    if (r.interviewer) {
+      interviewerInfo = ` · ${esc(r.interviewer)}`;
+      if (r.interviewerPhone || r.interviewerEmail) {
+        const contact = [];
+        if (r.interviewerPhone) contact.push(esc(r.interviewerPhone));
+        if (r.interviewerEmail) contact.push(esc(r.interviewerEmail));
+        interviewerInfo += ` (${contact.join(', ')})`;
+      }
+    }
+    return `
     <div class="tl-item">
       <div class="tl-dot ${r.outcome}"></div>
       <div class="tl-type">
         ${esc(r.type)}
         <span class="outcome-pill ${r.outcome}">${r.outcome==='pass'?'passed':r.outcome==='fail'?'did not pass':'pending'}</span>
       </div>
-      <div class="tl-meta">${esc(r.date)}${r.interviewer?' · '+esc(r.interviewer):''}</div>
+      <div class="tl-meta">${esc(r.date)}${interviewerInfo}</div>
       ${r.note ? `<div class="tl-note">${esc(r.note)}</div>` : ''}
       <div class="tl-actions">
         <button class="btn-tl" onclick="deleteRound('${p.id}','${r.id}')">Remove</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function showRoundForm(prefill) {
@@ -1248,8 +1284,18 @@ function showRoundForm(prefill) {
           </select>
         </div>
         <div>
-          <div class="rf-label">Interviewer</div>
+          <div class="rf-label">Interviewer name</div>
           <input class="rf-input" type="text" id="rf-interviewer" placeholder="Name (optional)">
+        </div>
+      </div>
+      <div class="form-row2">
+        <div>
+          <div class="rf-label">Interviewer phone</div>
+          <input class="rf-input" type="tel" id="rf-interviewer-phone" placeholder="Phone (optional)">
+        </div>
+        <div>
+          <div class="rf-label">Interviewer email</div>
+          <input class="rf-input" type="email" id="rf-interviewer-email" placeholder="Email (optional)">
         </div>
       </div>
       <div class="form-row1">
@@ -1274,11 +1320,13 @@ async function saveRound() {
   if (!p.interviews) p.interviews = [];
   const round = {
     id: uid(),
-    type:        document.getElementById('rf-type').value,
-    date:        document.getElementById('rf-date').value,
-    outcome:     document.getElementById('rf-outcome').value,
-    interviewer: document.getElementById('rf-interviewer').value.trim(),
-    note:        document.getElementById('rf-note').value.trim(),
+    type:             document.getElementById('rf-type').value,
+    date:             document.getElementById('rf-date').value,
+    outcome:          document.getElementById('rf-outcome').value,
+    interviewer:      document.getElementById('rf-interviewer').value.trim(),
+    interviewerPhone: document.getElementById('rf-interviewer-phone').value.trim(),
+    interviewerEmail: document.getElementById('rf-interviewer-email').value.trim(),
+    note:             document.getElementById('rf-note').value.trim(),
   };
   p.interviews.push(round);
   await persistData();
@@ -1320,8 +1368,9 @@ function overlayClick(e) {
 }
 
 function clearForm() {
-  ['f-company','f-role','f-salary','f-contact','f-notes'].forEach(id => document.getElementById(id).value = '');
+  ['f-company','f-role','f-salary','f-contact-name','f-contact-phone','f-contact-email','f-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-mode').value = '';
+  document.getElementById('f-salary-period').value = '';
   document.getElementById('f-status').value = 'applied';
 }
 
@@ -1330,13 +1379,16 @@ function editProcess(id) {
   if (!p) return;
   editingId = id;
   document.getElementById('modal-title-text').textContent = 'Edit opportunity';
-  document.getElementById('f-company').value = p.company || '';
-  document.getElementById('f-role').value    = p.role    || '';
-  document.getElementById('f-salary').value  = p.salary  || '';
-  document.getElementById('f-mode').value    = p.mode    || '';
-  document.getElementById('f-status').value  = p.status  || 'applied';
-  document.getElementById('f-contact').value = p.contact || '';
-  document.getElementById('f-notes').value   = p.notes   || '';
+  document.getElementById('f-company').value        = p.company      || '';
+  document.getElementById('f-role').value           = p.role         || '';
+  document.getElementById('f-salary').value         = p.salary       || '';
+  document.getElementById('f-salary-period').value  = p.salaryPeriod || '';
+  document.getElementById('f-mode').value           = p.mode         || '';
+  document.getElementById('f-status').value         = p.status       || 'applied';
+  document.getElementById('f-contact-name').value   = p.contactName  || '';
+  document.getElementById('f-contact-phone').value  = p.contactPhone || '';
+  document.getElementById('f-contact-email').value  = p.contactEmail || '';
+  document.getElementById('f-notes').value          = p.notes        || '';
   document.getElementById('modal-overlay').classList.add('open');
 }
 
@@ -1351,12 +1403,15 @@ async function saveProcess() {
   }
   const data = {
     company,
-    role:    document.getElementById('f-role').value.trim(),
-    salary:  document.getElementById('f-salary').value.trim(),
-    mode:    document.getElementById('f-mode').value,
-    status:  document.getElementById('f-status').value,
-    contact: document.getElementById('f-contact').value.trim(),
-    notes:   document.getElementById('f-notes').value.trim(),
+    role:         document.getElementById('f-role').value.trim(),
+    salary:       document.getElementById('f-salary').value.trim(),
+    salaryPeriod: document.getElementById('f-salary-period').value,
+    mode:         document.getElementById('f-mode').value,
+    status:       document.getElementById('f-status').value,
+    contactName:  document.getElementById('f-contact-name').value.trim(),
+    contactPhone: document.getElementById('f-contact-phone').value.trim(),
+    contactEmail: document.getElementById('f-contact-email').value.trim(),
+    notes:        document.getElementById('f-notes').value.trim(),
   };
   if (editingId) {
     const idx = processes.findIndex(x => x.id === editingId);
@@ -1396,18 +1451,21 @@ async function deleteProcess(id) {
 function exportCSV() {
   if (!processes.length) { toast('Nothing to export'); return; }
   const COLS = [
-    { key:'id',       label:'ID' },
-    { key:'company',  label:'Company' },
-    { key:'role',     label:'Role' },
-    { key:'status',   label:'Status' },
-    { key:'salary',   label:'Salary range' },
-    { key:'mode',     label:'Work mode' },
-    { key:'contact',  label:'Contact' },
-    { key:'notes',    label:'Notes' },
-    { key:'date_iso', label:'Added date' },
-    { key:'days',     label:'Days in pipeline' },
-    { key:'rounds',   label:'Interview rounds' },
-    { key:'last_outcome', label:'Last outcome' },
+    { key:'id',            label:'ID' },
+    { key:'company',       label:'Company' },
+    { key:'role',          label:'Role' },
+    { key:'status',        label:'Status' },
+    { key:'salary',        label:'Salary range' },
+    { key:'salaryPeriod',  label:'Salary period' },
+    { key:'mode',          label:'Work mode' },
+    { key:'contactName',   label:'Contact name' },
+    { key:'contactPhone',  label:'Contact phone' },
+    { key:'contactEmail',  label:'Contact email' },
+    { key:'notes',         label:'Notes' },
+    { key:'date_iso',      label:'Added date' },
+    { key:'days',          label:'Days in pipeline' },
+    { key:'rounds',        label:'Interview rounds' },
+    { key:'last_outcome',  label:'Last outcome' },
   ];
   const now = Date.now();
   const rows = processes
@@ -1416,8 +1474,9 @@ function exportCSV() {
       const iv = p.interviews||[];
       return {
         id: p.id, company: p.company||'', role: p.role||'',
-        status: p.status||'', salary: p.salary||'', mode: p.mode||'',
-        contact: p.contact||'', notes: p.notes||'',
+        status: p.status||'', salary: p.salary||'', salaryPeriod: p.salaryPeriod||'',
+        mode: p.mode||'', contactName: p.contactName||'', contactPhone: p.contactPhone||'',
+        contactEmail: p.contactEmail||'', notes: p.notes||'',
         date_iso: new Date(p.date).toISOString().slice(0,10),
         days: Math.floor((now-p.date)/86400000),
         rounds: iv.length,
