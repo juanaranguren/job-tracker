@@ -224,6 +224,85 @@ body.light-theme .btn-icon-header:hover{
 }
 .btn-add-header:hover{background:var(--accent2);transform:translateY(-1px);}
 
+/* ─── FILTER PANEL ─── */
+.filter-toggle{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--text2);background:var(--bg3);
+  border:1px solid var(--border2);border-radius:7px;
+  padding:6px 12px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;gap:6px;
+  letter-spacing:.03em;
+}
+.filter-toggle:hover{color:var(--text);border-color:var(--border3);background:var(--bg4);}
+.filter-toggle.active{color:var(--accent2);border-color:rgba(124,106,255,.4);background:rgba(124,106,255,.08);}
+.filter-badge{
+  background:var(--accent);color:#fff;
+  border-radius:10px;padding:1px 5px;
+  font-size:9px;font-weight:500;
+}
+.filter-arrow{
+  font-size:10px;transition:transform .2s;
+}
+.filter-toggle.active .filter-arrow{transform:rotate(180deg);}
+
+.filter-panel{
+  border-bottom:1px solid var(--border2);
+  background:var(--bg2);
+  max-height:0;overflow:hidden;
+  transition:max-height .3s cubic-bezier(.4,0,.2,1);
+  position:relative;z-index:99;
+}
+.filter-panel.open{max-height:300px;}
+.filter-inner{
+  padding:20px 24px;
+  display:grid;gap:16px;
+}
+
+.filter-section-label{
+  font-size:10px;font-weight:500;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--text3);
+  margin-bottom:8px;
+}
+.filter-search{
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:7px;color:var(--text);
+  padding:9px 12px;outline:none;width:100%;
+  transition:border-color .15s;
+}
+.filter-search:focus{border-color:rgba(124,106,255,.4);}
+.filter-search::placeholder{color:var(--text3);}
+
+.filter-checkboxes{
+  display:flex;flex-wrap:wrap;gap:10px;
+}
+.filter-checkbox{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--text2);
+  cursor:pointer;transition:color .12s;
+  user-select:none;
+}
+.filter-checkbox:hover{color:var(--text);}
+.filter-checkbox input[type="checkbox"]{
+  width:16px;height:16px;cursor:pointer;
+  accent-color:var(--accent);
+}
+.filter-count{
+  color:var(--text3);font-size:11px;
+  font-family:'DM Mono',monospace;
+}
+
+.filter-actions{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:8px;border-top:1px solid var(--border);
+}
+.btn-clear-filters{
+  font-size:11px;color:var(--text3);
+  background:none;border:none;cursor:pointer;
+  transition:color .12s;padding:0;
+}
+.btn-clear-filters:hover{color:var(--text);}
+
 /* ─── BOARD ─── */
 .board-wrap{padding:20px 24px;overflow-x:auto;}
 .board{display:flex;gap:12px;min-width:fit-content;}
@@ -683,6 +762,11 @@ textarea.mfi{resize:vertical;min-height:68px;line-height:1.5;}
       <div class="si-dot" id="si-dot"></div>
       <span id="si-label">loading…</span>
     </div>
+    <button class="filter-toggle" id="filter-toggle" onclick="toggleFilters()" title="Toggle filters">
+      <span>🔍 Filters</span>
+      <span class="filter-badge" id="filter-badge" style="display:none;">0</span>
+      <span class="filter-arrow">▼</span>
+    </button>
   </div>
   <div class="header-right">
     <div class="stat-chip" id="chip-total">Total: <span>0</span></div>
@@ -695,6 +779,61 @@ textarea.mfi{resize:vertical;min-height:68px;line-height:1.5;}
     <button class="btn-add-header" onclick="openModal()">+ Add</button>
   </div>
 </header>
+
+<!-- Filter Panel -->
+<div class="filter-panel" id="filter-panel">
+  <div class="filter-inner">
+    <div>
+      <div class="filter-section-label">Search</div>
+      <input type="text" class="filter-search" id="filter-search" placeholder="Search company, role, or notes..." oninput="applyFilters()">
+    </div>
+    <div>
+      <div class="filter-section-label">Filter by Status</div>
+      <div class="filter-checkboxes">
+        <label class="filter-checkbox">
+          <input type="checkbox" value="applied" onchange="applyFilters()" checked>
+          <span>Applied <span class="filter-count" id="count-applied">(0)</span></span>
+        </label>
+        <label class="filter-checkbox">
+          <input type="checkbox" value="screening" onchange="applyFilters()" checked>
+          <span>Screening <span class="filter-count" id="count-screening">(0)</span></span>
+        </label>
+        <label class="filter-checkbox">
+          <input type="checkbox" value="interview" onchange="applyFilters()" checked>
+          <span>Interview <span class="filter-count" id="count-interview">(0)</span></span>
+        </label>
+        <label class="filter-checkbox">
+          <input type="checkbox" value="offer" onchange="applyFilters()" checked>
+          <span>Offer <span class="filter-count" id="count-offer">(0)</span></span>
+        </label>
+        <label class="filter-checkbox">
+          <input type="checkbox" value="rejected" onchange="applyFilters()" checked>
+          <span>Rejected <span class="filter-count" id="count-rejected">(0)</span></span>
+        </label>
+      </div>
+    </div>
+    <div>
+      <div class="filter-section-label">Filter by Work Mode</div>
+      <div class="filter-checkboxes">
+        <label class="filter-checkbox">
+          <input type="checkbox" value="remote" onchange="applyFilters()" checked>
+          <span>Remote <span class="filter-count" id="count-remote">(0)</span></span>
+        </label>
+        <label class="filter-checkbox">
+          <input type="checkbox" value="hybrid" onchange="applyFilters()" checked>
+          <span>Hybrid <span class="filter-count" id="count-hybrid">(0)</span></span>
+        </label>
+        <label class="filter-checkbox">
+          <input type="checkbox" value="onsite" onchange="applyFilters()" checked>
+          <span>Onsite <span class="filter-count" id="count-onsite">(0)</span></span>
+        </label>
+      </div>
+    </div>
+    <div class="filter-actions">
+      <button class="btn-clear-filters" onclick="clearFilters()">Clear all filters</button>
+    </div>
+  </div>
+</div>
 
 <!-- Kanban board -->
 <div class="board-wrap">
@@ -951,6 +1090,12 @@ let activeDrawerId = null;
 let dragId = null;
 let notesDirty = false;
 
+// Filter state
+let filterSearchText = '';
+let filterStatuses = new Set(['applied', 'screening', 'interview', 'offer', 'rejected']);
+let filterModes = new Set(['remote', 'hybrid', 'onsite']);
+let isFilterPanelOpen = false;
+
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 }
@@ -1000,6 +1145,124 @@ function seedData() {
       ]
     },
   ];
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════════════════════
+function toggleFilters() {
+  isFilterPanelOpen = !isFilterPanelOpen;
+  const panel = document.getElementById('filter-panel');
+  const toggle = document.getElementById('filter-toggle');
+
+  if (isFilterPanelOpen) {
+    panel.classList.add('open');
+    toggle.classList.add('active');
+  } else {
+    panel.classList.remove('open');
+    toggle.classList.remove('active');
+  }
+}
+
+function applyFilters() {
+  // Update filter state from inputs
+  filterSearchText = document.getElementById('filter-search').value.toLowerCase().trim();
+
+  // Update status filters
+  filterStatuses.clear();
+  document.querySelectorAll('#filter-panel input[type="checkbox"][value="applied"], #filter-panel input[type="checkbox"][value="screening"], #filter-panel input[type="checkbox"][value="interview"], #filter-panel input[type="checkbox"][value="offer"], #filter-panel input[type="checkbox"][value="rejected"]').forEach(cb => {
+    if (cb.checked) filterStatuses.add(cb.value);
+  });
+
+  // Update mode filters
+  filterModes.clear();
+  document.querySelectorAll('#filter-panel input[type="checkbox"][value="remote"], #filter-panel input[type="checkbox"][value="hybrid"], #filter-panel input[type="checkbox"][value="onsite"]').forEach(cb => {
+    if (cb.checked) filterModes.add(cb.value);
+  });
+
+  // Update filter badge
+  updateFilterBadge();
+
+  // Re-render board with filters applied
+  render();
+}
+
+function clearFilters() {
+  // Reset search
+  document.getElementById('filter-search').value = '';
+  filterSearchText = '';
+
+  // Check all checkboxes
+  document.querySelectorAll('#filter-panel input[type="checkbox"]').forEach(cb => cb.checked = true);
+  filterStatuses = new Set(['applied', 'screening', 'interview', 'offer', 'rejected']);
+  filterModes = new Set(['remote', 'hybrid', 'onsite']);
+
+  // Update UI and re-render
+  updateFilterBadge();
+  render();
+}
+
+function updateFilterBadge() {
+  const totalFilters = 5 + 3; // 5 statuses + 3 modes
+  const activeFilters = filterStatuses.size + filterModes.size;
+  const hasSearch = filterSearchText.length > 0;
+
+  // Count active filters (those that are unchecked)
+  const inactiveCount = totalFilters - activeFilters + (hasSearch ? 1 : 0);
+
+  const badge = document.getElementById('filter-badge');
+  if (inactiveCount > 0 || hasSearch) {
+    badge.textContent = hasSearch ? (inactiveCount > 0 ? inactiveCount : 1) : inactiveCount;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function getFilteredProcesses() {
+  return processes.filter(p => {
+    // Text search filter
+    if (filterSearchText) {
+      const searchIn = [
+        p.company || '',
+        p.role || '',
+        p.notes || ''
+      ].join(' ').toLowerCase();
+
+      if (!searchIn.includes(filterSearchText)) return false;
+    }
+
+    // Status filter
+    if (!filterStatuses.has(p.status)) return false;
+
+    // Mode filter (include processes with no mode)
+    if (p.mode && !filterModes.has(p.mode)) return false;
+
+    return true;
+  });
+}
+
+function updateFilterCounts() {
+  // Count processes by status
+  const statusCounts = {applied: 0, screening: 0, interview: 0, offer: 0, rejected: 0};
+  const modeCounts = {remote: 0, hybrid: 0, onsite: 0};
+
+  processes.forEach(p => {
+    if (statusCounts.hasOwnProperty(p.status)) statusCounts[p.status]++;
+    if (p.mode && modeCounts.hasOwnProperty(p.mode)) modeCounts[p.mode]++;
+  });
+
+  // Update status counts
+  Object.keys(statusCounts).forEach(status => {
+    const el = document.getElementById(`count-${status}`);
+    if (el) el.textContent = `(${statusCounts[status]})`;
+  });
+
+  // Update mode counts
+  Object.keys(modeCounts).forEach(mode => {
+    const el = document.getElementById(`count-${mode}`);
+    if (el) el.textContent = `(${modeCounts[mode]})`;
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1075,9 +1338,12 @@ async function changeFile() {
 const STATUSES = ['applied','screening','interview','offer','rejected'];
 
 function render() {
+  // Get filtered processes
+  const filtered = getFilteredProcesses();
+
   STATUSES.forEach(s => {
     const col = document.getElementById('col-' + s);
-    const items = processes.filter(p => p.status === s).sort((a,b) => b.date - a.date);
+    const items = filtered.filter(p => p.status === s).sort((a,b) => b.date - a.date);
     document.getElementById('cnt-' + s).textContent = items.length;
     col.innerHTML = '';
     if (!items.length) {
@@ -1087,6 +1353,7 @@ function render() {
     }
   });
   updateStats();
+  updateFilterCounts();
   bindDrop();
   if (activeDrawerId) {
     const p = processes.find(x => x.id === activeDrawerId);
@@ -1147,8 +1414,9 @@ function bindDrop() {
 }
 
 function updateStats() {
-  document.querySelector('#chip-total span').textContent = processes.length;
-  document.querySelector('#chip-active span').textContent = processes.filter(p => p.status !== 'rejected').length;
+  const filtered = getFilteredProcesses();
+  document.querySelector('#chip-total span').textContent = filtered.length;
+  document.querySelector('#chip-active span').textContent = filtered.filter(p => p.status !== 'rejected').length;
 }
 
 // ═══════════════════════════════════════════════════════════════
