@@ -101,9 +101,12 @@
           company: 'Stripe',
           role: 'Staff Engineer',
           salary: '$180k-$220k',
+          salaryPeriod: 'yearly',
           mode: 'remote',
           status: 'interview',
-          contact: 'james@stripe.com',
+          contactName: 'James Chen',
+          contactPhone: '+1-555-0123',
+          contactEmail: 'james@stripe.com',
           notes: 'System design round next week.',
           date: Date.now(),
           interviews: [
@@ -112,6 +115,8 @@
               type: 'HR screen',
               date: '2026-03-03',
               interviewer: 'Sarah K.',
+              interviewerPhone: '',
+              interviewerEmail: 'sarah.k@stripe.com',
               outcome: 'pass',
               note: 'Great fit'
             }
@@ -122,9 +127,12 @@
           company: 'Anthropic',
           role: 'Senior Engineer',
           salary: '$160k-$200k',
+          salaryPeriod: 'yearly',
           mode: 'remote',
           status: 'applied',
-          contact: '',
+          contactName: '',
+          contactPhone: '',
+          contactEmail: '',
           notes: '',
           date: Date.now(),
           interviews: []
@@ -134,9 +142,12 @@
           company: 'Vercel',
           role: 'Frontend Lead',
           salary: '$140k-$180k',
+          salaryPeriod: 'yearly',
           mode: 'hybrid',
           status: 'screening',
-          contact: 'hiring@vercel.com',
+          contactName: 'Recruiter',
+          contactPhone: '',
+          contactEmail: 'hiring@vercel.com',
           notes: 'Recruiter call went well',
           date: Date.now(),
           interviews: []
@@ -146,9 +157,12 @@
           company: 'OpenAI',
           role: 'ML Engineer',
           salary: '$200k-$250k',
+          salaryPeriod: 'yearly',
           mode: 'onsite',
           status: 'offer',
-          contact: 'talent@openai.com',
+          contactName: 'Talent Team',
+          contactPhone: '',
+          contactEmail: 'talent@openai.com',
           notes: 'Offer received! Need to respond by Friday.',
           date: Date.now(),
           interviews: [
@@ -157,6 +171,8 @@
               type: 'Technical screen',
               date: '2026-03-10',
               interviewer: 'Alex P.',
+              interviewerPhone: '+1-555-9876',
+              interviewerEmail: 'alex@openai.com',
               outcome: 'pass',
               note: 'Strong coding skills'
             },
@@ -165,6 +181,8 @@
               type: 'System design',
               date: '2026-03-17',
               interviewer: 'Jordan L.',
+              interviewerPhone: '',
+              interviewerEmail: '',
               outcome: 'pass',
               note: 'Excellent system design approach'
             }
@@ -175,9 +193,12 @@
           company: 'Meta',
           role: 'Software Engineer',
           salary: '$150k-$190k',
+          salaryPeriod: 'yearly',
           mode: 'hybrid',
           status: 'rejected',
-          contact: '',
+          contactName: '',
+          contactPhone: '',
+          contactEmail: '',
           notes: 'Not a culture fit.',
           date: Date.now(),
           interviews: [
@@ -186,6 +207,8 @@
               type: 'HR screen',
               date: '2026-02-28',
               interviewer: 'Chris M.',
+              interviewerPhone: '',
+              interviewerEmail: '',
               outcome: 'fail',
               note: 'Timeline mismatch'
             }
@@ -222,7 +245,7 @@
     }
 
     // CSV export columns
-    const CSV_COLS = ['company', 'role', 'salary', 'mode', 'status', 'contact', 'notes'];
+    const CSV_COLS = ['company', 'role', 'salary', 'salaryPeriod', 'mode', 'status', 'contactName', 'contactPhone', 'contactEmail', 'notes'];
 
     function exportCSV() {
       const header = CSV_COLS.join(',');
@@ -314,6 +337,45 @@
           });
         });
       });
+
+      it('should have valid salary period values', () => {
+        const validPeriods = ['yearly', 'monthly', 'hourly', ''];
+        processes.forEach(p => {
+          expect(validPeriods).toContain(p.salaryPeriod || '');
+        });
+      });
+
+      it('should have contact fields defined', () => {
+        processes.forEach(p => {
+          expect(p.contactName !== undefined).toBe(true);
+          expect(p.contactPhone !== undefined).toBe(true);
+          expect(p.contactEmail !== undefined).toBe(true);
+        });
+      });
+
+      it('should have interviewer contact fields in interviews', () => {
+        processes.forEach(p => {
+          p.interviews?.forEach(i => {
+            expect(i.interviewerPhone !== undefined).toBe(true);
+            expect(i.interviewerEmail !== undefined).toBe(true);
+          });
+        });
+      });
+
+      it('should have at least one process with populated contact fields', () => {
+        const withContact = processes.find(p => p.contactName && p.contactEmail);
+        expect(withContact).toBeDefined();
+      });
+
+      it('should have at least one interview with interviewer email', () => {
+        let foundInterviewerEmail = false;
+        processes.forEach(p => {
+          p.interviews?.forEach(i => {
+            if (i.interviewerEmail) foundInterviewerEmail = true;
+          });
+        });
+        expect(foundInterviewerEmail).toBe(true);
+      });
     });
 
     describe('Section 3: Process CRUD Operations', () => {
@@ -329,9 +391,12 @@
           company: 'Test Company',
           role: 'Test Role',
           salary: '$100k-$150k',
+          salaryPeriod: 'yearly',
           mode: 'remote',
           status: 'applied',
-          contact: 'test@example.com',
+          contactName: 'Test Recruiter',
+          contactPhone: '+1-555-1234',
+          contactEmail: 'test@example.com',
           notes: 'Test notes',
           date: Date.now(),
           interviews: []
@@ -345,6 +410,9 @@
         const found = processes.find(p => p.company === 'Test Company');
         expect(found).toBeDefined();
         expect(found.role).toBe('Test Role');
+        expect(found.salaryPeriod).toBe('yearly');
+        expect(found.contactName).toBe('Test Recruiter');
+        expect(found.contactEmail).toBe('test@example.com');
       });
 
       it('should update an existing process', () => {
@@ -380,11 +448,17 @@
           type: 'Technical screen',
           date: '2026-03-26',
           interviewer: 'Test Interviewer',
+          interviewerPhone: '+1-555-4567',
+          interviewerEmail: 'interviewer@test.com',
           outcome: 'pass',
           note: 'Test interview'
         });
 
         expect(process.interviews.length).toBe(initialCount + 1);
+
+        const newInterview = process.interviews[process.interviews.length - 1];
+        expect(newInterview.interviewerPhone).toBe('+1-555-4567');
+        expect(newInterview.interviewerEmail).toBe('interviewer@test.com');
 
         // Cleanup
         process.interviews.pop();
@@ -468,7 +542,7 @@
         const csv = exportCSV();
         const lines = csv.split('\n');
 
-        expect(lines[0]).toBe('company,role,salary,mode,status,contact,notes');
+        expect(lines[0]).toBe('company,role,salary,salaryPeriod,mode,status,contactName,contactPhone,contactEmail,notes');
       });
 
       it('should export CSV with all processes', () => {
@@ -485,9 +559,12 @@
           company: 'Test, Inc.',
           role: 'Engineer',
           salary: '',
+          salaryPeriod: '',
           mode: 'remote',
           status: 'applied',
-          contact: '',
+          contactName: '',
+          contactPhone: '',
+          contactEmail: '',
           notes: '',
           date: Date.now(),
           interviews: []
@@ -512,6 +589,22 @@
         expect(parsed.lastSaved).toBeDefined();
         expect(Array.isArray(parsed.processes)).toBe(true);
       });
+
+      it('should include new fields in CSV export', () => {
+        const csv = exportCSV();
+
+        // Check header includes new fields
+        expect(csv).toContain('salaryPeriod');
+        expect(csv).toContain('contactName');
+        expect(csv).toContain('contactPhone');
+        expect(csv).toContain('contactEmail');
+
+        // Check data includes values for processes with new fields
+        const processWithData = processes.find(p => p.salaryPeriod);
+        if (processWithData) {
+          expect(csv).toContain(processWithData.salaryPeriod);
+        }
+      });
     });
 
     describe('Section 7: Data Integrity', () => {
@@ -524,9 +617,12 @@
           company: 'Integrity Test Co',
           role: 'Test',
           salary: '',
+          salaryPeriod: '',
           mode: 'remote',
           status: 'applied',
-          contact: '',
+          contactName: '',
+          contactPhone: '',
+          contactEmail: '',
           notes: '',
           date: Date.now(),
           interviews: []
