@@ -95,20 +95,64 @@ Click the **⋯** menu in the header and select **Export CSV** to download your 
 
 ## Browser Compatibility
 
-| Browser | Storage Method | Auto-save |
-|---|---|---|
-| Chrome / Edge | File on your computer | ✅ Yes |
-| Firefox / Safari | Browser localStorage | ✅ Yes |
+Pipeline works in all modern browsers, but the storage method differs:
 
-**Note for Chrome/Edge users:** The first time you save changes, macOS or Windows may ask for permission to access the folder where your `pipeline.json` file lives. Click **Allow** — this lets the app auto-save your changes. The app only accesses the specific file you selected.
+| Browser | Storage Method | Auto-save | File Picker |
+|---|---|---|---|
+| Chrome / Edge | File System Access API → writes to your `pipeline.json` file | ✅ Yes | ✅ Full support |
+| Firefox / Safari | localStorage (browser storage) | ✅ Yes | ❌ Fallback mode |
 
-To avoid permission prompts, save your `pipeline.json` in a dedicated folder like `~/pipeline-data/` instead of Documents or Desktop.
+### Chrome / Edge (Recommended)
+
+**Best experience.** Uses the File System Access API to read and write directly to your `pipeline.json` file on disk. Changes save automatically in real-time.
+
+**Permission prompt:** The first time you save changes, macOS or Windows may ask for permission to access the folder where your file lives. Click **Allow** — this lets the app auto-save. The app only accesses the specific file you selected, nothing else.
+
+**Tip:** Save your `pipeline.json` in a dedicated folder like `~/pipeline-data/` instead of Documents or Desktop to avoid permission prompts.
+
+### Firefox / Safari
+
+**Fallback mode.** These browsers don't support the File System Access API yet, so Pipeline stores your data in the browser's localStorage instead.
+
+**Limitations:**
+- Your data is tied to the browser and domain (if using GitHub Pages)
+- To back up or transfer data, use **⋯ menu → Export JSON** to download your `pipeline.json` file
+- Clearing browser data will erase your job tracking data
+
+**Recommendation:** For the best experience and true local-first file storage, use Chrome or Edge.
 
 ---
 
-## Data Privacy
+## Data Privacy & Offline Usage
 
-Your data never leaves your computer. There are no servers, no cloud storage, no analytics. The app runs entirely in your browser and writes to a JSON file you control.
+**Your data never leaves your machine.** Pipeline is designed with privacy as the core principle. There are no servers, no cloud storage, no analytics, no tracking.
+
+### Running from GitHub Pages
+
+You can use Pipeline directly from GitHub Pages without downloading anything. The app is served from GitHub Pages, but **runs entirely in your browser**. It reads and writes a `pipeline.json` file you control on your own disk (Chrome/Edge) or stores data in your browser's localStorage (Firefox/Safari).
+
+**What this means:**
+- The HTML/CSS/JavaScript files are loaded from GitHub Pages once
+- All processing happens locally in your browser
+- Your job data never gets sent to any server
+- GitHub (or anyone else) cannot see your data
+
+### Running Offline (Recommended)
+
+For complete privacy and offline access, download `pipeline.html` and run it locally:
+
+**Benefits:**
+- **Zero internet dependency** — works without any network connection
+- **Complete privacy** — no external resources loaded (except Google Fonts, which you can remove if desired)
+- **Portable** — copy the file to a USB drive and use on any computer
+- **Version control** — keep your preferred version forever
+
+To use offline:
+1. Download `pipeline.html` from this repository
+2. Double-click to open in your browser
+3. That's it — no internet required
+
+**Note:** Even when running offline, your browser may cache Google Fonts if you've loaded them before. The app will work perfectly fine if fonts fail to load.
 
 ---
 
