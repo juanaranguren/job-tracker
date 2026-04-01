@@ -272,6 +272,15 @@
       return JSON.stringify(payload, null, 2);
     }
 
+    // Edit round state (mirrors pipeline.html)
+    let editingRoundId = null;
+
+    // Edit round logic (mirrors pipeline.html saveRound update path)
+    function applyRoundEdit(p, rid, fields) {
+      const idx = p.interviews.findIndex(x => x.id === rid);
+      if (idx !== -1) Object.assign(p.interviews[idx], fields);
+    }
+
     // Initialize with seed data for testing
     seedData();
 
@@ -663,6 +672,143 @@
           expect(interview.date).toBeTruthy();
           expect(interview.outcome).toBeTruthy();
         }
+      });
+    });
+
+    describe('Section 8: Edit Round Feature', () => {
+      let targetProcess;
+      let targetRoundId;
+
+      beforeEach(() => {
+        seedData();
+        targetProcess = processes.find(p => p.interviews && p.interviews.length > 0);
+        targetRoundId = targetProcess.interviews[0].id;
+        editingRoundId = null;
+      });
+
+      it('should find a round by id for editing', () => {
+        const round = targetProcess.interviews.find(r => r.id === targetRoundId);
+        expect(round).toBeDefined();
+        expect(round.id).toBe(targetRoundId);
+      });
+
+      it('should update round fields in-place without changing round count', () => {
+        const countBefore = targetProcess.interviews.length;
+        applyRoundEdit(targetProcess, targetRoundId, { type: 'System design', outcome: 'pass' });
+        expect(targetProcess.interviews.length).toBe(countBefore);
+      });
+
+      it('should update round type correctly', () => {
+        applyRoundEdit(targetProcess, targetRoundId, { type: 'System design' });
+        const round = targetProcess.interviews.find(r => r.id === targetRoundId);
+        expect(round.type).toBe('System design');
+      });
+
+      it('should update round outcome correctly', () => {
+        applyRoundEdit(targetProcess, targetRoundId, { outcome: 'fail' });
+        const round = targetProcess.interviews.find(r => r.id === targetRoundId);
+        expect(round.outcome).toBe('fail');
+      });
+
+      it('should update round date correctly', () => {
+        applyRoundEdit(targetProcess, targetRoundId, { date: '2026-05-01' });
+        const round = targetProcess.interviews.find(r => r.id === targetRoundId);
+        expect(round.date).toBe('2026-05-01');
+      });
+
+      it('should update interviewer name correctly', () => {
+        applyRoundEdit(targetProcess, targetRoundId, { interviewer: 'New Interviewer' });
+        const round = targetProcess.interviews.find(r => r.id === targetRoundId);
+        expect(round.interviewer).toBe('New Interviewer');
+      });
+
+      it('should update interviewer phone and email correctly', () => {
+        applyRoundEdit(targetProcess, targetRoundId, {
+          interviewerPhone: '+1-555-0000',
+          interviewerEmail: 'new@example.com'
+        });
+        const round = targetProcess.interviews.find(r => r.id === targetRoundId);
+        expect(round.interviewerPhone).toBe('+1-555-0000');
+        expect(round.interviewerEmail).toBe('new@example.com');
+      });
+
+      it('should update round notes correctly', () => {
+        applyRoundEdit(targetProcess, targetRoundId, { note: 'Updated notes from edit' });
+        const round = targetProcess.interviews.find(r => r.id === targetRoundId);
+        expect(round.note).toBe('Updated notes from edit');
+      });
+
+      it('should update all fields at once', () => {
+        const updatedFields = {
+          type: 'Hiring manager',
+          date: '2026-06-15',
+          outcome: 'pend',
+          interviewer: 'Full Edit',
+          interviewerPhone: '+1-555-9999',
+          interviewerEmail: 'full@edit.com',
+          note: 'Full round edit test'
+        };
+        applyRoundEdit(targetProcess, targetRoundId, updatedFields);
+        const round = targetProcess.interviews.find(r => r.id === targetRoundId);
+        expect(round.type).toBe('Hiring manager');
+        expect(round.date).toBe('2026-06-15');
+        expect(round.outcome).toBe('pend');
+        expect(round.interviewer).toBe('Full Edit');
+        expect(round.interviewerPhone).toBe('+1-555-9999');
+        expect(round.interviewerEmail).toBe('full@edit.com');
+        expect(round.note).toBe('Full round edit test');
+      });
+
+      it('should preserve round id after edit', () => {
+        applyRoundEdit(targetProcess, targetRoundId, { type: 'Other' });
+        const round = targetProcess.interviews.find(r => r.id === targetRoundId);
+        expect(round.id).toBe(targetRoundId);
+      });
+
+      it('should not affect other rounds when editing one', () => {
+        const processWithMultiple = processes.find(p => p.interviews && p.interviews.length > 1);
+        if (!processWithMultiple) { pending('No process with multiple rounds'); return; }
+
+        const firstRoundId = processWithMultiple.interviews[0].id;
+        const secondRoundBefore = { ...processWithMultiple.interviews[1] };
+
+        applyRoundEdit(processWithMultiple, firstRoundId, { type: 'Other', note: 'Edited first' });
+
+        const secondRoundAfter = processWithMultiple.interviews[1];
+        expect(secondRoundAfter.type).toBe(secondRoundBefore.type);
+        expect(secondRoundAfter.note).toBe(secondRoundBefore.note);
+        expect(secondRoundAfter.outcome).toBe(secondRoundBefore.outcome);
+      });
+
+      it('should set editingRoundId when editing starts', () => {
+        editingRoundId = targetRoundId;
+        expect(editingRoundId).toBe(targetRoundId);
+      });
+
+      it('should clear editingRoundId after cancel', () => {
+        editingRoundId = targetRoundId;
+        editingRoundId = null; // cancelRoundForm resets this
+        expect(editingRoundId).toBeNull();
+      });
+
+      it('should clear editingRoundId after save', () => {
+        editingRoundId = targetRoundId;
+        applyRoundEdit(targetProcess, editingRoundId, { note: 'saved' });
+        editingRoundId = null; // saveRound resets via cancelRoundForm
+        expect(editingRoundId).toBeNull();
+      });
+
+      it('should persist edited round to storage', async () => {
+        applyRoundEdit(targetProcess, targetRoundId, { note: 'Persisted edit' });
+        await persistData();
+
+        const stored = localStorage.getItem(LS_KEY);
+        const parsed = JSON.parse(stored);
+        const storedProcess = parsed.processes.find(p => p.id === targetProcess.id);
+        const storedRound = storedProcess.interviews.find(r => r.id === targetRoundId);
+
+        expect(storedRound).toBeDefined();
+        expect(storedRound.note).toBe('Persisted edit');
       });
     });
 

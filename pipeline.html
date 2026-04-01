@@ -547,7 +547,8 @@ body.light-theme .btn-icon-header:hover{
   background:none;border:none;cursor:pointer;
   transition:color .1s;padding:0;
 }
-.btn-tl:hover{color:var(--red);}
+.btn-tl:hover{color:var(--accent);}
+.btn-tl-remove:hover{color:var(--red);}
 
 .empty-log{
   font-size:12px;color:var(--text3);
@@ -1086,6 +1087,7 @@ function updateStorageIndicator() {
 // ═══════════════════════════════════════════════════════════════
 let processes = [];
 let editingId = null;
+let editingRoundId = null;
 let activeDrawerId = null;
 let dragId = null;
 let notesDirty = false;
@@ -1518,7 +1520,8 @@ function renderTimeline(p) {
       <div class="tl-meta">${esc(r.date)}${interviewerInfo}</div>
       ${r.note ? `<div class="tl-note">${esc(r.note)}</div>` : ''}
       <div class="tl-actions">
-        <button class="btn-tl" onclick="deleteRound('${p.id}','${r.id}')">Remove</button>
+        <button class="btn-tl" onclick="editRound('${p.id}','${r.id}')">Edit</button>
+        <button class="btn-tl btn-tl-remove" onclick="deleteRound('${p.id}','${r.id}')">Remove</button>
       </div>
     </div>`;
   }).join('');
@@ -1527,75 +1530,79 @@ function renderTimeline(p) {
 function showRoundForm(prefill) {
   const wrap = document.getElementById('round-form-wrap');
   const today = new Date().toISOString().slice(0,10);
+  const f = prefill || {};
+  const types = ['HR screen','Recruiter call','Technical screen','Take-home','System design','Coding interview','Hiring manager','Final / panel','Offer call','Other'];
+  const typeOpts = types.map(t => `<option value="${t}"${f.type===t?' selected':''}>${t==='Take-home'?'Take-home challenge':t}</option>`).join('');
+  const isEdit = !!f.id;
   wrap.innerHTML = `
     <div class="round-form">
       <div class="form-row2">
         <div>
           <div class="rf-label">Round type</div>
-          <select class="rf-input" id="rf-type">
-            <option value="HR screen">HR screen</option>
-            <option value="Recruiter call">Recruiter call</option>
-            <option value="Technical screen">Technical screen</option>
-            <option value="Take-home">Take-home challenge</option>
-            <option value="System design">System design</option>
-            <option value="Coding interview">Coding interview</option>
-            <option value="Hiring manager">Hiring manager</option>
-            <option value="Final / panel">Final / panel</option>
-            <option value="Offer call">Offer call</option>
-            <option value="Other">Other</option>
-          </select>
+          <select class="rf-input" id="rf-type">${typeOpts}</select>
         </div>
         <div>
           <div class="rf-label">Date</div>
-          <input class="rf-input" type="date" id="rf-date" value="${today}">
+          <input class="rf-input" type="date" id="rf-date" value="${f.date||today}">
         </div>
       </div>
       <div class="form-row2">
         <div>
           <div class="rf-label">Outcome</div>
           <select class="rf-input" id="rf-outcome">
-            <option value="pend">Pending</option>
-            <option value="pass">Passed</option>
-            <option value="fail">Did not pass</option>
+            <option value="pend"${(f.outcome||'pend')==='pend'?' selected':''}>Pending</option>
+            <option value="pass"${f.outcome==='pass'?' selected':''}>Passed</option>
+            <option value="fail"${f.outcome==='fail'?' selected':''}>Did not pass</option>
           </select>
         </div>
         <div>
           <div class="rf-label">Interviewer name</div>
-          <input class="rf-input" type="text" id="rf-interviewer" placeholder="Name (optional)">
+          <input class="rf-input" type="text" id="rf-interviewer" placeholder="Name (optional)" value="${esc(f.interviewer||'')}">
         </div>
       </div>
       <div class="form-row2">
         <div>
           <div class="rf-label">Interviewer phone</div>
-          <input class="rf-input" type="tel" id="rf-interviewer-phone" placeholder="Phone (optional)">
+          <input class="rf-input" type="tel" id="rf-interviewer-phone" placeholder="Phone (optional)" value="${esc(f.interviewerPhone||'')}">
         </div>
         <div>
           <div class="rf-label">Interviewer email</div>
-          <input class="rf-input" type="email" id="rf-interviewer-email" placeholder="Email (optional)">
+          <input class="rf-input" type="email" id="rf-interviewer-email" placeholder="Email (optional)" value="${esc(f.interviewerEmail||'')}">
         </div>
       </div>
       <div class="form-row1">
         <div class="rf-label">Notes from this round</div>
-        <textarea class="rf-textarea" id="rf-note" placeholder="What was asked, how it went, follow-up actions…"></textarea>
+        <textarea class="rf-textarea" id="rf-note" placeholder="What was asked, how it went, follow-up actions…">${esc(f.note||'')}</textarea>
       </div>
       <div class="round-form-footer">
         <button class="btn-rf-cancel" onclick="cancelRoundForm()">Cancel</button>
-        <button class="btn-rf-save" onclick="saveRound()">Save round</button>
+        <button class="btn-rf-save" onclick="saveRound()">${isEdit ? 'Update round' : 'Save round'}</button>
       </div>
     </div>`;
   document.getElementById('rf-type').focus();
 }
 
 function cancelRoundForm() {
+  editingRoundId = null;
   document.getElementById('round-form-wrap').innerHTML = '';
+}
+
+function editRound(pid, rid) {
+  const p = processes.find(x => x.id === pid);
+  if (!p) return;
+  const r = (p.interviews||[]).find(x => x.id === rid);
+  if (!r) return;
+  cancelRoundForm();
+  editingRoundId = rid;
+  showRoundForm(r);
+  document.getElementById('round-form-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 async function saveRound() {
   const p = processes.find(x => x.id === activeDrawerId);
   if (!p) return;
   if (!p.interviews) p.interviews = [];
-  const round = {
-    id: uid(),
+  const fields = {
     type:             document.getElementById('rf-type').value,
     date:             document.getElementById('rf-date').value,
     outcome:          document.getElementById('rf-outcome').value,
@@ -1604,12 +1611,18 @@ async function saveRound() {
     interviewerEmail: document.getElementById('rf-interviewer-email').value.trim(),
     note:             document.getElementById('rf-note').value.trim(),
   };
-  p.interviews.push(round);
+  if (editingRoundId) {
+    const idx = p.interviews.findIndex(x => x.id === editingRoundId);
+    if (idx !== -1) Object.assign(p.interviews[idx], fields);
+    toast('Round updated');
+  } else {
+    p.interviews.push({ id: uid(), ...fields });
+    toast('Round saved');
+  }
   await persistData();
   cancelRoundForm();
   renderTimeline(p);
   render();
-  toast('Round saved');
 }
 
 async function deleteRound(pid, rid) {
